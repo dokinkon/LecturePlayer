@@ -1,0 +1,531 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C1116DFA156694F6004F3CF2 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C1116DF9156694F6004F3CF2 /* libxml2.dylib */; };
+		C1116DFC1566953D004F3CF2 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C1116DFB1566953D004F3CF2 /* libz.dylib */; };
+		C1116E0315669766004F3CF2 /* Lectures in Resources */ = {isa = PBXBuildFile; fileRef = C1116E0215669766004F3CF2 /* Lectures */; };
+		C11DD88F156678FA0044C301 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C11DD88E156678FA0044C301 /* UIKit.framework */; };
+		C11DD891156678FA0044C301 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C11DD890156678FA0044C301 /* Foundation.framework */; };
+		C11DD893156678FA0044C301 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C11DD892156678FA0044C301 /* CoreGraphics.framework */; };
+		C11DD899156678FA0044C301 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C11DD897156678FA0044C301 /* InfoPlist.strings */; };
+		C11DD89B156678FA0044C301 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C11DD89A156678FA0044C301 /* main.m */; };
+		C11DD89F156678FA0044C301 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C11DD89E156678FA0044C301 /* AppDelegate.m */; };
+		C11DD8A2156678FA0044C301 /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8A1156678FA0044C301 /* MasterViewController.m */; };
+		C11DD8A5156678FA0044C301 /* DetailViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8A4156678FA0044C301 /* DetailViewController.mm */; };
+		C11DD8A8156678FA0044C301 /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C11DD8A6156678FA0044C301 /* MasterViewController.xib */; };
+		C11DD8E0156679A40044C301 /* BWAES.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8B3156679A40044C301 /* BWAES.mm */; };
+		C11DD8E1156679A40044C301 /* BWCipherDll.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8B5156679A40044C301 /* BWCipherDll.mm */; };
+		C11DD8E2156679A40044C301 /* BWDES.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8B7156679A40044C301 /* BWDES.mm */; };
+		C11DD8E3156679A40044C301 /* BWDRMClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8B9156679A40044C301 /* BWDRMClient.mm */; };
+		C11DD8E4156679A40044C301 /* BWFileManagerTool.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8BB156679A40044C301 /* BWFileManagerTool.mm */; };
+		C11DD8E5156679A40044C301 /* BWMD5.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8BD156679A40044C301 /* BWMD5.mm */; };
+		C11DD8E6156679A40044C301 /* BWStringTool.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8BF156679A40044C301 /* BWStringTool.mm */; };
+		C11DD8E7156679A40044C301 /* BWZipTool.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8C1156679A40044C301 /* BWZipTool.mm */; };
+		C11DD8E8156679A40044C301 /* CActor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8C3156679A40044C301 /* CActor.cpp */; };
+		C11DD8E9156679A40044C301 /* CActorAction.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8C5156679A40044C301 /* CActorAction.mm */; };
+		C11DD8EA156679A40044C301 /* CSceneGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8C7156679A40044C301 /* CSceneGraph.mm */; };
+		C11DD8EB156679A40044C301 /* CScriptSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8C9156679A40044C301 /* CScriptSystem.mm */; };
+		C11DD8EC156679A40044C301 /* CTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8CB156679A40044C301 /* CTimer.mm */; };
+		C11DD8ED156679A40044C301 /* DownloadManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8CD156679A40044C301 /* DownloadManager.mm */; };
+		C11DD8EE156679A40044C301 /* globals.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8CF156679A40044C301 /* globals.mm */; };
+		C11DD8EF156679A40044C301 /* HttpDownload.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8D1156679A40044C301 /* HttpDownload.mm */; };
+		C11DD8F0156679A40044C301 /* MyEval.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8D3156679A40044C301 /* MyEval.mm */; };
+		C11DD8F2156679A40044C301 /* PlayObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8D7156679A40044C301 /* PlayObject.mm */; };
+		C11DD8F3156679A40044C301 /* PowerPoint_2003.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8D9156679A40044C301 /* PowerPoint_2003.mm */; };
+		C11DD8F4156679A40044C301 /* ppteval.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8DB156679A40044C301 /* ppteval.mm */; };
+		C11DD8F5156679A40044C301 /* ResourceFile2.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8DD156679A40044C301 /* ResourceFile2.mm */; };
+		C11DD8F6156679A40044C301 /* TPlayerMainForm.mm in Sources */ = {isa = PBXBuildFile; fileRef = C11DD8DF156679A40044C301 /* TPlayerMainForm.mm */; };
+		C148C4D81567D2C700F9EC85 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C148C4D71567D2C700F9EC85 /* DetailViewController.xib */; };
+		C1721F57156BEA6400505DD9 /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C1721F56156BEA6400505DD9 /* AudioPlayer.m */; };
+		C1721F9D156D32FE00505DD9 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721F9A156D32FE00505DD9 /* libavcodec.a */; };
+		C1721F9E156D32FE00505DD9 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721F9B156D32FE00505DD9 /* libavformat.a */; };
+		C1721F9F156D32FE00505DD9 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721F9C156D32FE00505DD9 /* libavutil.a */; };
+		C1721FA1156D36B300505DD9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721FA0156D36B300505DD9 /* AudioToolbox.framework */; };
+		C1721FA3156D372200505DD9 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721FA2156D372200505DD9 /* libbz2.dylib */; };
+		C1721FA7156D377900505DD9 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721FA4156D377800505DD9 /* libavdevice.a */; };
+		C1721FA8156D377900505DD9 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721FA5156D377900505DD9 /* libavfilter.a */; };
+		C1721FA9156D377900505DD9 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1721FA6156D377900505DD9 /* libswscale.a */; };
+		C1E03FE0156FD882004D6D64 /* resource in Resources */ = {isa = PBXBuildFile; fileRef = C1E03FDF156FD882004D6D64 /* resource */; };
+		C1F13D221568BC5C00533B3F /* PainterView.m in Sources */ = {isa = PBXBuildFile; fileRef = C1F13D211568BC5C00533B3F /* PainterView.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C1116DF615668C9C004F3CF2 /* MyXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyXML.h; sourceTree = "<group>"; };
+		C1116DF9156694F6004F3CF2 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		C1116DFB1566953D004F3CF2 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		C1116E0215669766004F3CF2 /* Lectures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lectures; path = LecturePlayer/Lectures; sourceTree = "<group>"; };
+		C11DD88A156678FA0044C301 /* LecturePlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LecturePlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C11DD88E156678FA0044C301 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C11DD890156678FA0044C301 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C11DD892156678FA0044C301 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		C11DD896156678FA0044C301 /* LecturePlayer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LecturePlayer-Info.plist"; sourceTree = "<group>"; };
+		C11DD898156678FA0044C301 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C11DD89A156678FA0044C301 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C11DD89C156678FA0044C301 /* LecturePlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LecturePlayer-Prefix.pch"; sourceTree = "<group>"; };
+		C11DD89D156678FA0044C301 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C11DD89E156678FA0044C301 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C11DD8A0156678FA0044C301 /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
+		C11DD8A1156678FA0044C301 /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
+		C11DD8A3156678FA0044C301 /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		C11DD8A4156678FA0044C301 /* DetailViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DetailViewController.mm; sourceTree = "<group>"; };
+		C11DD8A7156678FA0044C301 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MasterViewController.xib; sourceTree = "<group>"; };
+		C11DD8B2156679A40044C301 /* BWAES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWAES.h; sourceTree = "<group>"; };
+		C11DD8B3156679A40044C301 /* BWAES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWAES.mm; sourceTree = "<group>"; };
+		C11DD8B4156679A40044C301 /* BWCipherDll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWCipherDll.h; sourceTree = "<group>"; };
+		C11DD8B5156679A40044C301 /* BWCipherDll.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWCipherDll.mm; sourceTree = "<group>"; };
+		C11DD8B6156679A40044C301 /* BWDES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWDES.h; sourceTree = "<group>"; };
+		C11DD8B7156679A40044C301 /* BWDES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWDES.mm; sourceTree = "<group>"; };
+		C11DD8B8156679A40044C301 /* BWDRMClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWDRMClient.h; sourceTree = "<group>"; };
+		C11DD8B9156679A40044C301 /* BWDRMClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWDRMClient.mm; sourceTree = "<group>"; };
+		C11DD8BA156679A40044C301 /* BWFileManagerTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWFileManagerTool.h; sourceTree = "<group>"; };
+		C11DD8BB156679A40044C301 /* BWFileManagerTool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWFileManagerTool.mm; sourceTree = "<group>"; };
+		C11DD8BC156679A40044C301 /* BWMD5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWMD5.h; sourceTree = "<group>"; };
+		C11DD8BD156679A40044C301 /* BWMD5.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWMD5.mm; sourceTree = "<group>"; };
+		C11DD8BE156679A40044C301 /* BWStringTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWStringTool.h; sourceTree = "<group>"; };
+		C11DD8BF156679A40044C301 /* BWStringTool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWStringTool.mm; sourceTree = "<group>"; };
+		C11DD8C0156679A40044C301 /* BWZipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWZipTool.h; sourceTree = "<group>"; };
+		C11DD8C1156679A40044C301 /* BWZipTool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BWZipTool.mm; sourceTree = "<group>"; };
+		C11DD8C2156679A40044C301 /* CActor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CActor.h; sourceTree = "<group>"; };
+		C11DD8C3156679A40044C301 /* CActor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CActor.cpp; sourceTree = "<group>"; };
+		C11DD8C4156679A40044C301 /* CActorAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CActorAction.h; sourceTree = "<group>"; };
+		C11DD8C5156679A40044C301 /* CActorAction.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CActorAction.mm; sourceTree = "<group>"; };
+		C11DD8C6156679A40044C301 /* CSceneGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSceneGraph.h; sourceTree = "<group>"; };
+		C11DD8C7156679A40044C301 /* CSceneGraph.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CSceneGraph.mm; sourceTree = "<group>"; };
+		C11DD8C8156679A40044C301 /* CScriptSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScriptSystem.h; sourceTree = "<group>"; };
+		C11DD8C9156679A40044C301 /* CScriptSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CScriptSystem.mm; sourceTree = "<group>"; };
+		C11DD8CA156679A40044C301 /* CTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTimer.h; sourceTree = "<group>"; };
+		C11DD8CB156679A40044C301 /* CTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CTimer.mm; sourceTree = "<group>"; };
+		C11DD8CC156679A40044C301 /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
+		C11DD8CD156679A40044C301 /* DownloadManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadManager.mm; sourceTree = "<group>"; };
+		C11DD8CE156679A40044C301 /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
+		C11DD8CF156679A40044C301 /* globals.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = globals.mm; sourceTree = "<group>"; };
+		C11DD8D0156679A40044C301 /* HttpDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpDownload.h; sourceTree = "<group>"; };
+		C11DD8D1156679A40044C301 /* HttpDownload.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HttpDownload.mm; sourceTree = "<group>"; };
+		C11DD8D2156679A40044C301 /* MyEval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyEval.h; sourceTree = "<group>"; };
+		C11DD8D3156679A40044C301 /* MyEval.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyEval.mm; sourceTree = "<group>"; };
+		C11DD8D6156679A40044C301 /* PlayObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayObject.h; sourceTree = "<group>"; };
+		C11DD8D7156679A40044C301 /* PlayObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlayObject.mm; sourceTree = "<group>"; };
+		C11DD8D8156679A40044C301 /* PowerPoint_2003.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PowerPoint_2003.h; sourceTree = "<group>"; };
+		C11DD8D9156679A40044C301 /* PowerPoint_2003.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PowerPoint_2003.mm; sourceTree = "<group>"; };
+		C11DD8DA156679A40044C301 /* ppteval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppteval.h; sourceTree = "<group>"; };
+		C11DD8DB156679A40044C301 /* ppteval.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ppteval.mm; sourceTree = "<group>"; };
+		C11DD8DC156679A40044C301 /* ResourceFile2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceFile2.h; sourceTree = "<group>"; };
+		C11DD8DD156679A40044C301 /* ResourceFile2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourceFile2.mm; sourceTree = "<group>"; };
+		C11DD8DE156679A40044C301 /* TPlayerMainForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPlayerMainForm.h; sourceTree = "<group>"; };
+		C11DD8DF156679A40044C301 /* TPlayerMainForm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TPlayerMainForm.mm; sourceTree = "<group>"; };
+		C148C4D71567D2C700F9EC85 /* DetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DetailViewController.xib; sourceTree = SOURCE_ROOT; };
+		C1721F55156BEA6400505DD9 /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
+		C1721F56156BEA6400505DD9 /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayer.m; sourceTree = "<group>"; };
+		C1721F9A156D32FE00505DD9 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = LecturePlayer/ffmpeg/fat/lib/libavcodec.a; sourceTree = "<group>"; };
+		C1721F9B156D32FE00505DD9 /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = LecturePlayer/ffmpeg/fat/lib/libavformat.a; sourceTree = "<group>"; };
+		C1721F9C156D32FE00505DD9 /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = LecturePlayer/ffmpeg/fat/lib/libavutil.a; sourceTree = "<group>"; };
+		C1721FA0156D36B300505DD9 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		C1721FA2156D372200505DD9 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = usr/lib/libbz2.dylib; sourceTree = SDKROOT; };
+		C1721FA4156D377800505DD9 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = LecturePlayer/ffmpeg/fat/lib/libavdevice.a; sourceTree = "<group>"; };
+		C1721FA5156D377900505DD9 /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavfilter.a; path = LecturePlayer/ffmpeg/fat/lib/libavfilter.a; sourceTree = "<group>"; };
+		C1721FA6156D377900505DD9 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = LecturePlayer/ffmpeg/fat/lib/libswscale.a; sourceTree = "<group>"; };
+		C1E03FDF156FD882004D6D64 /* resource */ = {isa = PBXFileReference; lastKnownFileType = folder; name = resource; path = LecturePlayer/resource; sourceTree = "<group>"; };
+		C1F13D201568BC5C00533B3F /* PainterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PainterView.h; sourceTree = "<group>"; };
+		C1F13D211568BC5C00533B3F /* PainterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PainterView.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C11DD887156678F90044C301 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1721FA7156D377900505DD9 /* libavdevice.a in Frameworks */,
+				C1721FA8156D377900505DD9 /* libavfilter.a in Frameworks */,
+				C1721FA9156D377900505DD9 /* libswscale.a in Frameworks */,
+				C1721F9D156D32FE00505DD9 /* libavcodec.a in Frameworks */,
+				C1721F9E156D32FE00505DD9 /* libavformat.a in Frameworks */,
+				C1721F9F156D32FE00505DD9 /* libavutil.a in Frameworks */,
+				C1721FA3156D372200505DD9 /* libbz2.dylib in Frameworks */,
+				C1721FA1156D36B300505DD9 /* AudioToolbox.framework in Frameworks */,
+				C1116DFC1566953D004F3CF2 /* libz.dylib in Frameworks */,
+				C1116DFA156694F6004F3CF2 /* libxml2.dylib in Frameworks */,
+				C11DD88F156678FA0044C301 /* UIKit.framework in Frameworks */,
+				C11DD891156678FA0044C301 /* Foundation.framework in Frameworks */,
+				C11DD893156678FA0044C301 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C1116DFD1566956E004F3CF2 /* dylibs */ = {
+			isa = PBXGroup;
+			children = (
+				C1721FA2156D372200505DD9 /* libbz2.dylib */,
+				C1116DFB1566953D004F3CF2 /* libz.dylib */,
+				C1116DF9156694F6004F3CF2 /* libxml2.dylib */,
+			);
+			name = dylibs;
+			sourceTree = "<group>";
+		};
+		C11DD87F156678F90044C301 = {
+			isa = PBXGroup;
+			children = (
+				C1E03FDF156FD882004D6D64 /* resource */,
+				C1721FAF156E623300505DD9 /* libs */,
+				C1116E0215669766004F3CF2 /* Lectures */,
+				C1116DFD1566956E004F3CF2 /* dylibs */,
+				C11DD8B1156679A40044C301 /* porting */,
+				C11DD894156678FA0044C301 /* LecturePlayer */,
+				C11DD88D156678FA0044C301 /* Frameworks */,
+				C11DD88B156678FA0044C301 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C11DD88B156678FA0044C301 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C11DD88A156678FA0044C301 /* LecturePlayer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C11DD88D156678FA0044C301 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C1721FA0156D36B300505DD9 /* AudioToolbox.framework */,
+				C11DD88E156678FA0044C301 /* UIKit.framework */,
+				C11DD890156678FA0044C301 /* Foundation.framework */,
+				C11DD892156678FA0044C301 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C11DD894156678FA0044C301 /* LecturePlayer */ = {
+			isa = PBXGroup;
+			children = (
+				C148C4D71567D2C700F9EC85 /* DetailViewController.xib */,
+				C11DD89D156678FA0044C301 /* AppDelegate.h */,
+				C11DD89E156678FA0044C301 /* AppDelegate.m */,
+				C11DD8A0156678FA0044C301 /* MasterViewController.h */,
+				C11DD8A1156678FA0044C301 /* MasterViewController.m */,
+				C11DD8A3156678FA0044C301 /* DetailViewController.h */,
+				C11DD8A4156678FA0044C301 /* DetailViewController.mm */,
+				C1721F55156BEA6400505DD9 /* AudioPlayer.h */,
+				C1721F56156BEA6400505DD9 /* AudioPlayer.m */,
+				C1F13D201568BC5C00533B3F /* PainterView.h */,
+				C1F13D211568BC5C00533B3F /* PainterView.m */,
+				C11DD8A6156678FA0044C301 /* MasterViewController.xib */,
+				C11DD895156678FA0044C301 /* Supporting Files */,
+			);
+			path = LecturePlayer;
+			sourceTree = "<group>";
+		};
+		C11DD895156678FA0044C301 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C11DD896156678FA0044C301 /* LecturePlayer-Info.plist */,
+				C11DD897156678FA0044C301 /* InfoPlist.strings */,
+				C11DD89A156678FA0044C301 /* main.m */,
+				C11DD89C156678FA0044C301 /* LecturePlayer-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C11DD8B1156679A40044C301 /* porting */ = {
+			isa = PBXGroup;
+			children = (
+				C1116DF615668C9C004F3CF2 /* MyXML.h */,
+				C11DD8B2156679A40044C301 /* BWAES.h */,
+				C11DD8B3156679A40044C301 /* BWAES.mm */,
+				C11DD8B4156679A40044C301 /* BWCipherDll.h */,
+				C11DD8B5156679A40044C301 /* BWCipherDll.mm */,
+				C11DD8B6156679A40044C301 /* BWDES.h */,
+				C11DD8B7156679A40044C301 /* BWDES.mm */,
+				C11DD8B8156679A40044C301 /* BWDRMClient.h */,
+				C11DD8B9156679A40044C301 /* BWDRMClient.mm */,
+				C11DD8BA156679A40044C301 /* BWFileManagerTool.h */,
+				C11DD8BB156679A40044C301 /* BWFileManagerTool.mm */,
+				C11DD8BC156679A40044C301 /* BWMD5.h */,
+				C11DD8BD156679A40044C301 /* BWMD5.mm */,
+				C11DD8BE156679A40044C301 /* BWStringTool.h */,
+				C11DD8BF156679A40044C301 /* BWStringTool.mm */,
+				C11DD8C0156679A40044C301 /* BWZipTool.h */,
+				C11DD8C1156679A40044C301 /* BWZipTool.mm */,
+				C11DD8C2156679A40044C301 /* CActor.h */,
+				C11DD8C3156679A40044C301 /* CActor.cpp */,
+				C11DD8C4156679A40044C301 /* CActorAction.h */,
+				C11DD8C5156679A40044C301 /* CActorAction.mm */,
+				C11DD8C6156679A40044C301 /* CSceneGraph.h */,
+				C11DD8C7156679A40044C301 /* CSceneGraph.mm */,
+				C11DD8C8156679A40044C301 /* CScriptSystem.h */,
+				C11DD8C9156679A40044C301 /* CScriptSystem.mm */,
+				C11DD8CA156679A40044C301 /* CTimer.h */,
+				C11DD8CB156679A40044C301 /* CTimer.mm */,
+				C11DD8CC156679A40044C301 /* DownloadManager.h */,
+				C11DD8CD156679A40044C301 /* DownloadManager.mm */,
+				C11DD8CE156679A40044C301 /* globals.h */,
+				C11DD8CF156679A40044C301 /* globals.mm */,
+				C11DD8D0156679A40044C301 /* HttpDownload.h */,
+				C11DD8D1156679A40044C301 /* HttpDownload.mm */,
+				C11DD8D2156679A40044C301 /* MyEval.h */,
+				C11DD8D3156679A40044C301 /* MyEval.mm */,
+				C11DD8D6156679A40044C301 /* PlayObject.h */,
+				C11DD8D7156679A40044C301 /* PlayObject.mm */,
+				C11DD8D8156679A40044C301 /* PowerPoint_2003.h */,
+				C11DD8D9156679A40044C301 /* PowerPoint_2003.mm */,
+				C11DD8DA156679A40044C301 /* ppteval.h */,
+				C11DD8DB156679A40044C301 /* ppteval.mm */,
+				C11DD8DC156679A40044C301 /* ResourceFile2.h */,
+				C11DD8DD156679A40044C301 /* ResourceFile2.mm */,
+				C11DD8DE156679A40044C301 /* TPlayerMainForm.h */,
+				C11DD8DF156679A40044C301 /* TPlayerMainForm.mm */,
+			);
+			name = porting;
+			path = LecturePlayer/porting;
+			sourceTree = "<group>";
+		};
+		C1721FAF156E623300505DD9 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				C1721FA4156D377800505DD9 /* libavdevice.a */,
+				C1721FA5156D377900505DD9 /* libavfilter.a */,
+				C1721FA6156D377900505DD9 /* libswscale.a */,
+				C1721F9A156D32FE00505DD9 /* libavcodec.a */,
+				C1721F9B156D32FE00505DD9 /* libavformat.a */,
+				C1721F9C156D32FE00505DD9 /* libavutil.a */,
+			);
+			name = libs;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C11DD889156678F90044C301 /* LecturePlayer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C11DD8AE156678FA0044C301 /* Build configuration list for PBXNativeTarget "LecturePlayer" */;
+			buildPhases = (
+				C11DD886156678F90044C301 /* Sources */,
+				C11DD887156678F90044C301 /* Frameworks */,
+				C11DD888156678F90044C301 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LecturePlayer;
+			productName = LecturePlayer;
+			productReference = C11DD88A156678FA0044C301 /* LecturePlayer.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C11DD881156678F90044C301 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = C11DD884156678F90044C301 /* Build configuration list for PBXProject "LecturePlayer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C11DD87F156678F90044C301;
+			productRefGroup = C11DD88B156678FA0044C301 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C11DD889156678F90044C301 /* LecturePlayer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C11DD888156678F90044C301 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C11DD899156678FA0044C301 /* InfoPlist.strings in Resources */,
+				C11DD8A8156678FA0044C301 /* MasterViewController.xib in Resources */,
+				C1116E0315669766004F3CF2 /* Lectures in Resources */,
+				C148C4D81567D2C700F9EC85 /* DetailViewController.xib in Resources */,
+				C1E03FE0156FD882004D6D64 /* resource in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C11DD886156678F90044C301 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C11DD89B156678FA0044C301 /* main.m in Sources */,
+				C11DD89F156678FA0044C301 /* AppDelegate.m in Sources */,
+				C11DD8A2156678FA0044C301 /* MasterViewController.m in Sources */,
+				C11DD8A5156678FA0044C301 /* DetailViewController.mm in Sources */,
+				C11DD8E0156679A40044C301 /* BWAES.mm in Sources */,
+				C11DD8E1156679A40044C301 /* BWCipherDll.mm in Sources */,
+				C11DD8E2156679A40044C301 /* BWDES.mm in Sources */,
+				C11DD8E3156679A40044C301 /* BWDRMClient.mm in Sources */,
+				C11DD8E4156679A40044C301 /* BWFileManagerTool.mm in Sources */,
+				C11DD8E5156679A40044C301 /* BWMD5.mm in Sources */,
+				C11DD8E6156679A40044C301 /* BWStringTool.mm in Sources */,
+				C11DD8E7156679A40044C301 /* BWZipTool.mm in Sources */,
+				C11DD8E8156679A40044C301 /* CActor.cpp in Sources */,
+				C11DD8E9156679A40044C301 /* CActorAction.mm in Sources */,
+				C11DD8EA156679A40044C301 /* CSceneGraph.mm in Sources */,
+				C11DD8EB156679A40044C301 /* CScriptSystem.mm in Sources */,
+				C11DD8EC156679A40044C301 /* CTimer.mm in Sources */,
+				C11DD8ED156679A40044C301 /* DownloadManager.mm in Sources */,
+				C11DD8EE156679A40044C301 /* globals.mm in Sources */,
+				C11DD8EF156679A40044C301 /* HttpDownload.mm in Sources */,
+				C11DD8F0156679A40044C301 /* MyEval.mm in Sources */,
+				C11DD8F2156679A40044C301 /* PlayObject.mm in Sources */,
+				C11DD8F3156679A40044C301 /* PowerPoint_2003.mm in Sources */,
+				C11DD8F4156679A40044C301 /* ppteval.mm in Sources */,
+				C11DD8F5156679A40044C301 /* ResourceFile2.mm in Sources */,
+				C11DD8F6156679A40044C301 /* TPlayerMainForm.mm in Sources */,
+				C1F13D221568BC5C00533B3F /* PainterView.m in Sources */,
+				C1721F57156BEA6400505DD9 /* AudioPlayer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C11DD897156678FA0044C301 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C11DD898156678FA0044C301 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		C11DD8A6156678FA0044C301 /* MasterViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C11DD8A7156678FA0044C301 /* en */,
+			);
+			name = MasterViewController.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C11DD8AC156678FA0044C301 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = LecturePlayer;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		C11DD8AD156678FA0044C301 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PRODUCT_NAME = LecturePlayer;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				USER_HEADER_SEARCH_PATHS = "";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C11DD8AF156678FA0044C301 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Meng-Yuan Tzeng (83A7J3YAR5)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LecturePlayer/LecturePlayer-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(SDK_DIR)/usr/include/libxml2";
+				INFOPLIST_FILE = "LecturePlayer/LecturePlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/fat/lib\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "7696B8F9-09D1-4C28-92C9-CB866147C980";
+				USER_HEADER_SEARCH_PATHS = "~/case/LecturePlayer/LecturePlayer/ffmpeg/i386/include";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		C11DD8B0156678FA0044C301 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Meng-Yuan Tzeng (83A7J3YAR5)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LecturePlayer/LecturePlayer-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(SDK_DIR)/usr/include/libxml2";
+				INFOPLIST_FILE = "LecturePlayer/LecturePlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/fat/lib\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "7696B8F9-09D1-4C28-92C9-CB866147C980";
+				USER_HEADER_SEARCH_PATHS = "~/case/LecturePlayer/LecturePlayer/ffmpeg/i386/include";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C11DD884156678F90044C301 /* Build configuration list for PBXProject "LecturePlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C11DD8AC156678FA0044C301 /* Debug */,
+				C11DD8AD156678FA0044C301 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C11DD8AE156678FA0044C301 /* Build configuration list for PBXNativeTarget "LecturePlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C11DD8AF156678FA0044C301 /* Debug */,
+				C11DD8B0156678FA0044C301 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C11DD881156678F90044C301 /* Project object */;
+}
