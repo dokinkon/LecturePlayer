@@ -7,7 +7,6 @@
 //
 
 #import "DetailViewController.h"
-#import "PainterView.h"
 #import "TPlayerMainForm.h"
 #import "PlayObject.h"
 #import "AudioPlayer.h"

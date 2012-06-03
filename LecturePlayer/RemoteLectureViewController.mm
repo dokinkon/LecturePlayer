@@ -231,9 +231,6 @@ typedef enum {
     [_restClient loadMetadata:[NSString stringWithFormat:@"/%@", _tobeDownload]];
     
     NSLog(@"tobeDownload:%@", _tobeDownload);
-    //[_restClient loadFile:[NSString stringWithFormat:@"/%@/publish.xml", _tobeDownload]
-                 //intoPath:[NSString stringWithFormat:@"%@/%@", GetDownloadPath(), _tobeDownload]];
-    //_tobeDownload = nil;
 }
 
 @end

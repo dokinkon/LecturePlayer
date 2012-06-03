@@ -13,6 +13,7 @@
 #import "Utility.h"
 #import "Lecture.h"
 #import "Slide.h"
+#import "LectureDetailViewController.h"
 
 #import "DropboxSDK/DropboxSDK.h"
 
@@ -21,12 +22,13 @@
 #include <map>
 
 @interface MasterViewController () {
-    NSMutableArray* _lectures;
+    NSMutableArray* _localLectures;
+    NSMutableArray* _remoteLectures;
 }
 
 - (void)readLectureList;
 
-- (NSString *)makeFilePathWithLecture:(NSString *)lectureName andBst:(NSString *)bstName; 
+//- (NSString *)makeFilePathWithLecture:(NSString *)lectureName andBst:(NSString *)bstName; 
 
 @end
 
@@ -48,14 +50,18 @@
 - (void)dealloc
 {
     [_detailViewController release];
+    [_remoteLectures release];
+    [_localLectures release];
     [super dealloc];
 }
 
+/*
 - (NSString *)makeFilePathWithLecture:(NSString *)lectureName andBst:(NSString *)bstName
 {
     NSString* lecturesPath = [[NSBundle mainBundle] pathForResource:@"Lectures" ofType:@""];
     return [lecturesPath stringByAppendingFormat:@"/%@/%@", lectureName, bstName];
 }
+ */
 
 - (void)readLectureList
 {
@@ -63,12 +69,25 @@
     assert(lecturesPath);
     NSArray* bstDirectories = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:lecturesPath error:nil];
     
-    _lectures = [[NSMutableArray alloc] init];
+    _localLectures = [[NSMutableArray alloc] init];
     
     for (id bstDirectory in bstDirectories)
     {
         Lecture* lecture = [[Lecture alloc] initWithTitle:bstDirectory lectureFolder:lecturesPath];
-        [_lectures addObject:lecture];
+        [_localLectures addObject:lecture];
+    }
+}
+
+- (void)readRemoteLectureList
+{
+    NSString* downloadPath = GetDownloadPath();
+    NSArray* lectureDirectories = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:downloadPath error:nil];
+    [_remoteLectures release];
+    _remoteLectures = [[NSMutableArray alloc] initWithCapacity:3];
+    
+    for (NSString* lectureTitle in lectureDirectories) {
+        Lecture* remoteLecture = [[Lecture alloc] initWithTitle:lectureTitle lectureFolder:downloadPath];
+        [_remoteLectures addObject:remoteLecture];
     }
 }
 
@@ -77,6 +96,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     [self readLectureList];
+    [self readRemoteLectureList];
     //self.navigationItem.leftBarButtonItem = self.editButtonItem;
 
     UIBarButtonItem *dropBoxButton = [[[UIBarButtonItem alloc] initWithTitle:@"Dropbox" style:UIBarButtonItemStylePlain target:self action:@selector(openDropbox:)] autorelease];
@@ -110,20 +130,25 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    NSInteger c = [_lectures count];
-    return c;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    Lecture* lecture = (Lecture*)[_lectures objectAtIndex:section];
-    return [lecture.slides count];
+    if (section==0) {
+        return [_localLectures count];
+    } else {
+        return [_remoteLectures count];
+    }
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    Lecture* lecture = (Lecture*)[_lectures objectAtIndex:section];
-    return lecture.title;
+    if (section==0) {
+        return @"本地端";
+    } else {
+        return @"下載資料夾";
+    }
 }
 
 // Customize the appearance of table view cells.
@@ -135,9 +160,15 @@
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
-    Lecture* lecture = (Lecture*)[_lectures objectAtIndex:indexPath.section];
-    Slide* slide = (Slide*)[lecture.slides objectAtIndex:indexPath.row];
-    cell.textLabel.text = slide.title;
+    
+    if (indexPath.section==0) {
+        Lecture* lecture = (Lecture*)[_localLectures objectAtIndex:indexPath.row];
+        cell.textLabel.text = lecture.title;
+    } else if (indexPath.section==1) {
+        Lecture* lecture = (Lecture*)[_remoteLectures objectAtIndex:indexPath.row];
+        cell.textLabel.text = lecture.title;
+    }
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
 
@@ -149,8 +180,26 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    Lecture* lecture = [_lectures objectAtIndex:indexPath.section];
-    [self.detailViewController setLecture:lecture withSlideIndex:indexPath.row];
+    
+    //[self.detailViewController setLecture:lecture withSlideIndex:inde
+    
+    NSMutableArray* lectures = nil;
+    
+    if (indexPath.section==0) {
+        lectures = _localLectures;
+    } else if (indexPath.section==1) {
+        lectures = _remoteLectures;
+    }
+    
+    if (lectures) {
+        LectureDetailViewController* controller = [[LectureDetailViewController alloc] initWithNibName:@"LectureDetailViewController" bundle:nil];
+        Lecture* lecture = [lectures objectAtIndex:indexPath.row];
+        [controller setLecture:lecture];
+        [controller setDetailViewController:self.detailViewController];
+        [self.navigationController pushViewController:controller animated:YES];
+        [controller release];
+    }
+        
 }
 
 

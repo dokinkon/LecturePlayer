@@ -69,12 +69,13 @@
 		C181AB71157B555500CF3057 /* pen.png in Resources */ = {isa = PBXBuildFile; fileRef = C181AB70157B555500CF3057 /* pen.png */; };
 		C181AB74157B5F5F00CF3057 /* Utility.mm in Sources */ = {isa = PBXBuildFile; fileRef = C181AB73157B5F5F00CF3057 /* Utility.mm */; };
 		C181AB77157B6ADF00CF3057 /* DownloadSession.mm in Sources */ = {isa = PBXBuildFile; fileRef = C181AB76157B6ADF00CF3057 /* DownloadSession.mm */; };
+		C181AB85157B842700CF3057 /* LectureDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C181AB83157B842600CF3057 /* LectureDetailViewController.m */; };
+		C181AB86157B842700CF3057 /* LectureDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C181AB84157B842600CF3057 /* LectureDetailViewController.xib */; };
 		C1D55921157A272C00806A90 /* DropboxSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1D55920157A272C00806A90 /* DropboxSDK.framework */; };
 		C1D55924157A275900806A90 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1D55923157A275900806A90 /* Security.framework */; };
 		C1D55926157A282200806A90 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1D55925157A282200806A90 /* QuartzCore.framework */; };
 		C1D55929157A355D00806A90 /* Slide.m in Sources */ = {isa = PBXBuildFile; fileRef = C1D55928157A355D00806A90 /* Slide.m */; };
 		C1D5592C157A363800806A90 /* Lecture.mm in Sources */ = {isa = PBXBuildFile; fileRef = C1D5592B157A363800806A90 /* Lecture.mm */; };
-		C1F13D221568BC5C00533B3F /* PainterView.m in Sources */ = {isa = PBXBuildFile; fileRef = C1F13D211568BC5C00533B3F /* PainterView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -174,6 +175,9 @@
 		C181AB73157B5F5F00CF3057 /* Utility.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Utility.mm; sourceTree = "<group>"; };
 		C181AB75157B6ADF00CF3057 /* DownloadSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadSession.h; sourceTree = "<group>"; };
 		C181AB76157B6ADF00CF3057 /* DownloadSession.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadSession.mm; sourceTree = "<group>"; };
+		C181AB82157B842500CF3057 /* LectureDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LectureDetailViewController.h; sourceTree = "<group>"; };
+		C181AB83157B842600CF3057 /* LectureDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LectureDetailViewController.m; sourceTree = "<group>"; };
+		C181AB84157B842600CF3057 /* LectureDetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LectureDetailViewController.xib; sourceTree = "<group>"; };
 		C1D55920157A272C00806A90 /* DropboxSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DropboxSDK.framework; sourceTree = "<group>"; };
 		C1D55923157A275900806A90 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		C1D55925157A282200806A90 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -181,8 +185,6 @@
 		C1D55928157A355D00806A90 /* Slide.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Slide.m; sourceTree = "<group>"; };
 		C1D5592A157A363800806A90 /* Lecture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lecture.h; sourceTree = "<group>"; };
 		C1D5592B157A363800806A90 /* Lecture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lecture.mm; sourceTree = "<group>"; };
-		C1F13D201568BC5C00533B3F /* PainterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PainterView.h; sourceTree = "<group>"; };
-		C1F13D211568BC5C00533B3F /* PainterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PainterView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -265,6 +267,9 @@
 				C148C4D71567D2C700F9EC85 /* DetailViewController.xib */,
 				C11DD8A6156678FA0044C301 /* MasterViewController.xib */,
 				C181AB65157B297300CF3057 /* RemoteLectureViewController.xib */,
+				C181AB82157B842500CF3057 /* LectureDetailViewController.h */,
+				C181AB83157B842600CF3057 /* LectureDetailViewController.m */,
+				C181AB84157B842600CF3057 /* LectureDetailViewController.xib */,
 				C181AB63157B297300CF3057 /* RemoteLectureViewController.h */,
 				C181AB64157B297300CF3057 /* RemoteLectureViewController.mm */,
 				C11DD89D156678FA0044C301 /* AppDelegate.h */,
@@ -275,8 +280,6 @@
 				C11DD8A4156678FA0044C301 /* DetailViewController.mm */,
 				C1721F55156BEA6400505DD9 /* AudioPlayer.h */,
 				C1721F56156BEA6400505DD9 /* AudioPlayer.m */,
-				C1F13D201568BC5C00533B3F /* PainterView.h */,
-				C1F13D211568BC5C00533B3F /* PainterView.m */,
 				C1D55927157A355D00806A90 /* Slide.h */,
 				C1D55928157A355D00806A90 /* Slide.m */,
 				C1D5592A157A363800806A90 /* Lecture.h */,
@@ -466,6 +469,7 @@
 				C181AB57157B096000CF3057 /* Localizable.strings in Resources */,
 				C181AB67157B297300CF3057 /* RemoteLectureViewController.xib in Resources */,
 				C181AB71157B555500CF3057 /* pen.png in Resources */,
+				C181AB86157B842700CF3057 /* LectureDetailViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,13 +506,13 @@
 				C11DD8F4156679A40044C301 /* ppteval.mm in Sources */,
 				C11DD8F5156679A40044C301 /* ResourceFile2.mm in Sources */,
 				C11DD8F6156679A40044C301 /* TPlayerMainForm.mm in Sources */,
-				C1F13D221568BC5C00533B3F /* PainterView.m in Sources */,
 				C1721F57156BEA6400505DD9 /* AudioPlayer.m in Sources */,
 				C1D55929157A355D00806A90 /* Slide.m in Sources */,
 				C1D5592C157A363800806A90 /* Lecture.mm in Sources */,
 				C181AB66157B297300CF3057 /* RemoteLectureViewController.mm in Sources */,
 				C181AB74157B5F5F00CF3057 /* Utility.mm in Sources */,
 				C181AB77157B6ADF00CF3057 /* DownloadSession.mm in Sources */,
+				C181AB85157B842700CF3057 /* LectureDetailViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
