@@ -11,6 +11,8 @@
 #import "TPlayerMainForm.h"
 #import "PlayObject.h"
 #import "AudioPlayer.h"
+#import "Lecture.h"
+#import "Slide.h"
 
 /*!
  * \brief:
@@ -28,30 +30,34 @@ int TickTimeToAudioIndex(int tick)
 {
     TPlayerMainForm* _playerMainForm;
     NSTimer* _timer;
-    BOOL _isPlaying;
-    BOOL _hasLectureLoaded;
-    int _countTime;
-    UIImageView* _mouseView;
-    UIImageView* _canvasView;
+    
+    UIView* _sceneRootView;
+    UIImageView* _cursorView; // for mouse cursor (pen)
+    UIImageView* _canvasView; // for drawing
     NSMutableArray* _sceneImageViews;
-    int _totalScriptTime;
     UIAlertView* _busyIndicator;
     CGPoint _currDrawLocation;
     CGPoint _prevDrawLocation;
-    
     UIColor* _penColor;
     CGFloat _penSize;
     
-    AudioPlayer* _audioPlayer;
+    int _totalScriptTime;
+    BOOL _isPlaying;
+    BOOL _hasLectureLoaded;
+    int _countTime;
     int _audioIndex;
+    int _slideIndex;
     
+    AudioPlayer* _audioPlayer;
 }
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 - (void)configureView;
+- (void)createSceneRootView;
+- (void)removeSceneRootView;
 - (void)createSceneImages;
 - (void)removeSceneImages;
-- (void)createPainterView;
-- (void)setMouse;
+- (void)createCanvasView;
+- (void)createCursorView;
 - (void)doStart;
 - (void)doStop;
 - (void)update;
@@ -61,6 +67,11 @@ int TickTimeToAudioIndex(int tick)
 - (void)doActionSceneMouseMove;
 - (void)doActionBeginPen;
 - (void)doActionSystemEnd;
+
+/*!
+ *
+ */
+- (BOOL)loadSlide:(NSString*)fileName;
 
 /*!
  * \brief Get drawing location from params
@@ -86,20 +97,29 @@ int TickTimeToAudioIndex(int tick)
 
 @synthesize detailItem = _detailItem;
 @synthesize bstFilePath = _bstFilePath;
-@synthesize detailDescriptionLabel = _detailDescriptionLabel;
+@synthesize lecture = _lecture;
 @synthesize currentTimeLabel = _currentTimeLabel;
 @synthesize masterPopoverController = _masterPopoverController;
+
 @synthesize playButton = _playButton;
+@synthesize stopButton = _stopButton;
+@synthesize nextButton = _nextButton;
+@synthesize prevButton = _prevButton;
+
 @synthesize progressBar = _progressBar;
 
 - (void)dealloc
 {
     [_detailItem release];
-    [_detailDescriptionLabel release];
     [_currentTimeLabel release];
     [_bstFilePath release];
     [_masterPopoverController release];
+    
     [_playButton release];
+    [_stopButton release];
+    [_nextButton release];
+    [_prevButton release];
+    
     [_progressBar release];
     [_audioPlayer release];
     
@@ -109,36 +129,61 @@ int TickTimeToAudioIndex(int tick)
     [super dealloc];
 }
 
-- (void)createPainterView
+- (void)createCanvasView
 {
     CGSize s = self.view.frame.size;
     CGRect f = CGRectMake(0, 0, s.width, s.height);
     _canvasView = [[UIImageView alloc] initWithImage:nil];
     _canvasView.frame = f;
-    [self.view addSubview:_canvasView];
+    [_sceneRootView addSubview:_canvasView];
+    //[self.view addSubview:_canvasView];
 }
 
-- (void)setMouse
+- (void)createCursorView
 {
-    UIImage* image = [UIImage imageNamed:@"resource/pen.png"];
+    UIImage* image = [UIImage imageNamed:@"pen.png"];
     assert(image);
-    _mouseView = [[UIImageView alloc] initWithImage:image];
-    [self.view addSubview:_mouseView];
+    _cursorView = [[UIImageView alloc] initWithImage:image];
+    [_sceneRootView addSubview:_cursorView];
+    
+    // let root to handle her lifecycle
+    [_cursorView release];
 }
 
 - (IBAction)nextButtonPressed:(id)sender
 {
     NSLog(@"NextButtonPressed:");
+    if (!_lecture)
+        return;
+    
+    if (_slideIndex + 1 < [_lecture.slides count]) {
+        [self playSlidexIndex:_slideIndex+1];
+    } else {
+        [self displayAlert:@"提示" withMessage:@"課程完畢"];
+    }
 }
 
 - (IBAction)prevButtonPressed:(id)sender
 {
     NSLog(@"PrevButtonPressed:");
+    if (!_lecture) 
+        return;
+    
+    if (_slideIndex - 1 < 0) {
+        [self displayAlert:@"提示" withMessage:@"前面沒有了"];
+    } else {
+        [self playSlidexIndex:_slideIndex - 1];
+    }
 }
 
 - (IBAction)playButtonPressed:(id)sender
 {
     [self doStart];
+}
+
+- (IBAction)stopButtonPressed:(id)sender
+{
+    
 }
 
 - (IBAction)progressSliderMoved:(id)sender
@@ -147,6 +192,8 @@ int TickTimeToAudioIndex(int tick)
     int val = s.value;
     _playerMainForm->PlayObject->script->GotoTime(val);
     _countTime = val;
+    [_audioPlayer stop];
+    NSLog(@"SLIDER MOVED:%d", val);
 }
 
 - (int)getAudioListSize
@@ -167,6 +214,9 @@ int TickTimeToAudioIndex(int tick)
 
 - (void)doStart
 {
+    if (!_lecture) {
+        return;
+    }
     _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
     _audioIndex = 0;
@@ -307,9 +357,9 @@ int TickTimeToAudioIndex(int tick)
 {
     int x = [[self getActionParameter:0] intValue];
     int y = [[self getActionParameter:1] intValue];
-    CGRect rect = _mouseView.frame;
+    CGRect rect = _cursorView.frame;
     rect.origin = CGPointMake(x, y);
-    _mouseView.frame = rect;
+    _cursorView.frame = rect;
 }
 
 - (void)update
@@ -392,6 +442,16 @@ int TickTimeToAudioIndex(int tick)
     [self configureView];
 }
 
+- (void)setLecture:(Lecture *)lecture withSlideIndex:(int)slideIndex
+{
+    _lecture = lecture;
+    [self doStop];
+    [self playSlidexIndex:slideIndex];
+    //[self configureView];
+}
+
+
+
 - (void)setDetailItem:(id)newDetailItem
 {
     if (_detailItem != newDetailItem) {
@@ -427,6 +487,19 @@ int TickTimeToAudioIndex(int tick)
 
 using std::string;
 
+- (void)createSceneRootView
+{
+    _sceneRootView = [[UIView alloc] initWithFrame:CGRectMake(152, 54, 720, 540)];
+    [self.view addSubview:_sceneRootView];
+}
+
+- (void)removeSceneRootView
+{
+    [_sceneRootView removeFromSuperview];
+    [_sceneRootView release];
+    _sceneRootView = nil;
+}
+
 - (void)createSceneImages
 {
     _sceneImageViews = [[NSMutableArray alloc] init];
@@ -460,7 +533,8 @@ using std::string;
                 assert(image);
                 UIImageView* imageView = [[UIImageView alloc] initWithImage:image];
                 imageView.frame = CGRectMake(x, y, w, h);
-                [self.view addSubview:imageView];
+                //[self.view addSubview:imageView];
+                [_sceneRootView addSubview:imageView];
             
                 // keep these scene imageview, we will remove later.
                 [_sceneImageViews addObject:imageView];
@@ -483,14 +557,60 @@ using std::string;
     _sceneImageViews = nil;
 }
 
+- (BOOL)loadSlide:(NSString*)fileName
+{
+    if (_playerMainForm->LoadFile([fileName cStringUsingEncoding:NSUTF8StringEncoding])) {
+        NSLog(@"LOAD SLIDE SUCESSFUL");
+        _hasLectureLoaded = YES;
+        _totalScriptTime = _playerMainForm->PlayObject->script->m_TotalScriptTime;
+        
+        NSLog(@"TOTAL SCRIPT TIME:%dms", _totalScriptTime*10);
+        
+        int t = [self getAudioListSize];
+        NSLog(@"ESTIMATE AUDIO TIME:%dms", t*10000);
+        return YES;
+    }
+    return NO;
+}
+
+- (void)displayAlert:(NSString*)title withMessage:(NSString*)message
+{
+    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:@"好" otherButtonTitles:nil];
+    [alert show];
+    [alert release];
+}
+
+- (BOOL)playSlidexIndex:(int)index
+{
+    if (!_lecture) {
+        [self displayAlert:@"錯誤" withMessage:@"請先選取課程投影片"];
+        return NO;
+    }
+    
+    if (index >= [_lecture.slides count]) {
+        [self displayAlert:@"內部錯誤" withMessage:@"Index ouf of range"];
+        return NO;
+    }
+    
+    Slide* slide = (Slide*)[_lecture.slides objectAtIndex:index];
+    if (![self loadSlide:slide.filePath]) {
+        [self displayAlert:@"內部錯誤" withMessage:@""];
+    }
+    
+    [self removeSceneRootView];
+    [self removeSceneImages];
+    [self createSceneRootView];
+    [self createSceneImages];
+    [self createCanvasView];
+    [self createCursorView];
+    [self doStop];
+    _slideIndex = index;
+    return YES;
+}
+
 - (void)configureView
 {
     // Update the user interface for the detail item.
-
-    if (self.detailItem) {
-        self.detailDescriptionLabel.text = [self.detailItem description];
-    }
-    
     if (self.bstFilePath) {
         [self showBusyIndicator];
         if (_playerMainForm->LoadFile([_bstFilePath cStringUsingEncoding:NSUTF8StringEncoding])) {
@@ -505,11 +625,13 @@ using std::string;
             int t = [self getAudioListSize];
             NSLog(@"ESTIMATE AUDIO TIME:%dms", t*10000);
             
+            [self removeSceneRootView];
             [self removeSceneImages];
+            [self createSceneRootView];
             [self createSceneImages];
             //[self dumpResourceRefNames];
-            [self createPainterView];
-            [self setMouse];
+            [self createCanvasView];
+            [self createCursorView];
             [self doStop];
         }
         [self hideBusyIndicator];
@@ -527,8 +649,12 @@ using std::string;
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
-    self.detailDescriptionLabel = nil;
+    
     self.playButton = nil;
+    self.stopButton = nil;
+    self.nextButton = nil;
+    self.prevButton = nil;
+    
     self.progressBar = nil;
     self.currentTimeLabel = nil;
 }
@@ -544,7 +670,7 @@ using std::string;
     if (self) {
         _hasLectureLoaded = NO;
         _totalScriptTime = 0;
-        self.title = NSLocalizedString(@"Detail", @"Detail");
+        self.title = @"LecturePlayer";//NSLocalizedString(@"Detail", @"Detail");
         _playerMainForm = new TPlayerMainForm;
         [AudioPlayer initFFEngine];
         _audioPlayer = [[AudioPlayer alloc] init];
@@ -562,7 +688,7 @@ using std::string;
 
 - (void)splitViewController:(UISplitViewController *)splitController willHideViewController:(UIViewController *)viewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)popoverController
 {
-    barButtonItem.title = NSLocalizedString(@"Master", @"Master");
+    barButtonItem.title = @"目錄";//NSLocalizedString(@"Master", @"Master");
     [self.navigationItem setLeftBarButtonItem:barButtonItem animated:YES];
     self.masterPopoverController = popoverController;
 }
@@ -575,3 +701,19 @@ using std::string;
 }
 
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

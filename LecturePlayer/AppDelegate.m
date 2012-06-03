@@ -7,10 +7,11 @@
 //
 
 #import "AppDelegate.h"
-
 #import "MasterViewController.h"
-
 #import "DetailViewController.h"
+
+#import <DropboxSDK/DropboxSDK.h>
+
 
 @implementation AppDelegate
 
@@ -28,7 +29,14 @@
 {
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
-
+    
+    DBSession* dbSession = [[[DBSession alloc]
+        initWithAppKey:@"572ugc9n9uywpmf"
+        appSecret:@"0fvzrnjcc24figa"
+        root:kDBRootAppFolder]
+        autorelease];
+    [DBSession setSharedSession:dbSession];
+    
     MasterViewController *masterViewController = [[[MasterViewController alloc] initWithNibName:@"MasterViewController" bundle:nil] autorelease];
     UINavigationController *masterNavigationController = [[[UINavigationController alloc] initWithRootViewController:masterViewController] autorelease];
 
@@ -40,9 +48,29 @@
     self.splitViewController = [[[UISplitViewController alloc] init] autorelease];
     self.splitViewController.delegate = detailViewController;
     self.splitViewController.viewControllers = [NSArray arrayWithObjects:masterNavigationController, detailNavigationController, nil];
+    [self.splitViewController setValue:[NSNumber numberWithFloat:500.0] forKey:@"_masterColumnWidth"];
     self.window.rootViewController = self.splitViewController;
-    [self.window makeKeyAndVisible];    
+    [self.window makeKeyAndVisible];   
+    [self didPressLink];
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+{
+    if ([[DBSession sharedSession] handleOpenURL:url]) {
+        if ([[DBSession sharedSession] isLinked]) {
+            NSLog(@"DropboxApp linked sucessfully");
+        }
+        return YES;
+    }
+    return NO;
+}
+
+- (void)didPressLink
+{
+    if (![[DBSession sharedSession] isLinked]) {
+        [[DBSession sharedSession] linkFromController:self.splitViewController];
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
