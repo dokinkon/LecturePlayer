@@ -12,10 +12,14 @@
 {
     NSString* _title;
     NSMutableArray* _slides;
+    BOOL _isDownloaded;
 }
 
 @property (nonatomic, retain) NSString* title;
 @property (nonatomic, retain) NSMutableArray* slides;
+@property (nonatomic, readonly) NSString* path;
+@property (nonatomic, readonly) BOOL isDownloaded;
+
 
 - (id) initWithTitle:(NSString*)title lectureFolder:(NSString*)folder;
 

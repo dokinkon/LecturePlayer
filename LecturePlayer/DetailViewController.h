@@ -23,7 +23,7 @@
 
 @property (strong, nonatomic) id detailItem;
 
-@property (strong, nonatomic) NSString* bstFilePath;
+//@property (strong, nonatomic) NSString* bstFilePath;
 @property (strong, nonatomic) Lecture* lecture;
 
 @property (strong, nonatomic) IBOutlet UIButton* stopButton;

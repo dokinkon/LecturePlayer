@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 @class Lecture;
 @class DetailViewController;
-@interface LectureDetailViewController : UITableViewController
+@interface LectureDetailViewController : UITableViewController<UIAlertViewDelegate>
 {
     Lecture* _lecture;
     DetailViewController* _detailViewController;

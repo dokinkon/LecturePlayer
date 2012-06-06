@@ -35,12 +35,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    UIBarButtonItem *deleteButton = [[[UIBarButtonItem alloc] initWithTitle:@"刪除" style:UIBarButtonItemStylePlain target:self action:@selector(deleteLecture:)] autorelease];
+    self.navigationItem.rightBarButtonItem = deleteButton;
 }
 
 - (void)viewDidUnload
@@ -48,6 +45,25 @@
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
+}
+
+- (void)deleteLecture:(id)sender
+{
+    if (!_lecture)
+        return;
+    
+    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"警告" message:@"確認刪除？" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"好", nil];
+    [alert show];
+    [alert release];
+}
+
+- (void)doDeleteLecture
+{
+    if (![[NSFileManager defaultManager] removeItemAtPath:_lecture.path error:nil]) {
+        // Something error
+        NSLog(@"Failed to remove directory");
+    }
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)setDetailViewController:(DetailViewController*)controller;
@@ -102,23 +118,19 @@
 }
 
 
-
-
-
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [_detailViewController setLecture:_lecture withSlideIndex:indexPath.row];
+}
 
-    // Navigation logic may go here. Create and push another view controller.
-    /*
-     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-     // ...
-     // Pass the selected object to the new view controller.
-     [self.navigationController pushViewController:detailViewController animated:YES];
-     [detailViewController release];
-     */
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex==1) {
+        [self doDeleteLecture];
+    }
+    
 }
 
 @end

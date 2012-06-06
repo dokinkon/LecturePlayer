@@ -21,4 +21,8 @@
 
 - (void)stop;
 
+- (void)pause;
+
+- (void)resume;
+
 @end

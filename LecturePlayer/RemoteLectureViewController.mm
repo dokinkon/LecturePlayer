@@ -25,6 +25,7 @@ typedef enum {
     OpCode _opCode;
     NSMutableArray* _downloading;
     NSMutableArray* _downloadSessions;
+    UIAlertView* _busyIndicator;
 }
 
 - (void)refreshButtonPressed:(id)sender;
@@ -205,6 +206,14 @@ typedef enum {
 {
     for (DownloadSession* session in _downloadSessions) {
         if ([session isCompleted]) {
+            [self hideBusyIndicator];
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"恭喜" 
+                                                           message:@"下載已完成" 
+                                                          delegate:nil 
+                                                 cancelButtonTitle:@"好" 
+                                                 otherButtonTitles:nil];
+            [alert show];
+            [alert release];
             [_downloadSessions removeObject:session];
         }
     }
@@ -216,6 +225,19 @@ typedef enum {
     [self doRefresh];
 }
 
+- (void)doStartDownload
+{
+    if (!_tobeDownload) 
+        return;
+    
+    [self showBusyIndicator];
+    
+    _opCode = kPrepareDownloadList;
+    [_restClient loadMetadata:[NSString stringWithFormat:@"/%@", _tobeDownload]];
+    
+    NSLog(@"tobeDownload:%@", _tobeDownload);
+}
+
 #pragma mark - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
@@ -224,13 +246,36 @@ typedef enum {
     if (buttonIndex!=1)
         return;
     
-    if (!_tobeDownload) 
+    [self doStartDownload];
+}
+
+- (void)showBusyIndicator
+{
+    if (_busyIndicator)
+        return;
+    _busyIndicator = [[UIAlertView alloc] initWithTitle:@"請稍候..."
+                                                message:nil
+                                               delegate:nil
+                                      cancelButtonTitle:nil
+                                      otherButtonTitles:nil];
+    [_busyIndicator show];
+    
+    UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc]
+                                          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    indicator.center = CGPointMake(_busyIndicator.frame.size.width/2, _busyIndicator.frame.size.height-40);
+    //indicator.center = CGPointMake(_busyIndicator.bounds.size.height-40, _busyIndicator.bounds.size.width/2);
+    //indicator.center = CGPointMake(100, 0);
+    [indicator startAnimating];
+    [_busyIndicator addSubview:indicator];
+    [indicator release];
+}
+- (void)hideBusyIndicator
+{
+    if (!_busyIndicator)
         return;
     
-    _opCode = kPrepareDownloadList;
-    [_restClient loadMetadata:[NSString stringWithFormat:@"/%@", _tobeDownload]];
-    
-    NSLog(@"tobeDownload:%@", _tobeDownload);
+    [_busyIndicator dismissWithClickedButtonIndex:0 animated:NO];
+    _busyIndicator = nil;
 }
 
 @end

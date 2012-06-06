@@ -12,6 +12,14 @@
 
 #import <DropboxSDK/DropboxSDK.h>
 
+// MySelf
+#define kAppKey     "572ugc9n9uywpmf"
+#define kAppSecret  "0fvzrnjcc24figa"
+
+// Customer
+//#define kAppKey     "cc5n7jlqrnnuesc"
+//#define kAppSecret  "bdochb4zr4e9yvy"
+
 
 @implementation AppDelegate
 
@@ -31,8 +39,8 @@
     // Override point for customization after application launch.
     
     DBSession* dbSession = [[[DBSession alloc]
-        initWithAppKey:@"572ugc9n9uywpmf"
-        appSecret:@"0fvzrnjcc24figa"
+        initWithAppKey:@kAppKey
+        appSecret:@kAppSecret
         root:kDBRootAppFolder]
         autorelease];
     [DBSession setSharedSession:dbSession];

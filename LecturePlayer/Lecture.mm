@@ -19,6 +19,8 @@ using namespace std;
 
 @synthesize title = _title;
 @synthesize slides = _slides;
+@synthesize isDownloaded = _isDownloaded;
+@synthesize path = _path;
 
 
 
@@ -27,6 +29,8 @@ using namespace std;
     if ((self = [super init])!=nil) {
         _title = [[NSString stringWithString:lectureTitle] retain];
         _slides = [[NSMutableArray alloc] initWithCapacity:3];
+        _path = [[NSString alloc] initWithFormat:@"%@/%@", lectureFolder, lectureTitle];
+        
         
         NSString* filePath = [NSString stringWithFormat:@"%@/%@/publish.xml",lectureFolder, lectureTitle];
         

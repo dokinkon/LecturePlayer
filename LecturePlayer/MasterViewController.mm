@@ -28,8 +28,6 @@
 
 - (void)readLectureList;
 
-//- (NSString *)makeFilePathWithLecture:(NSString *)lectureName andBst:(NSString *)bstName; 
-
 @end
 
 @implementation MasterViewController
@@ -55,16 +53,10 @@
     [super dealloc];
 }
 
-/*
-- (NSString *)makeFilePathWithLecture:(NSString *)lectureName andBst:(NSString *)bstName
-{
-    NSString* lecturesPath = [[NSBundle mainBundle] pathForResource:@"Lectures" ofType:@""];
-    return [lecturesPath stringByAppendingFormat:@"/%@/%@", lectureName, bstName];
-}
- */
-
 - (void)readLectureList
 {
+    [_localLectures release];
+    
     NSString* lecturesPath = [[NSBundle mainBundle] pathForResource:@"Lectures" ofType:@""];
     assert(lecturesPath);
     NSArray* bstDirectories = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:lecturesPath error:nil];
@@ -91,17 +83,25 @@
     }
 }
 
+- (void)refresh
+{
+    [self readLectureList];
+    [self readRemoteLectureList];
+    [self.tableView reloadData];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    [self readLectureList];
-    [self readRemoteLectureList];
-    //self.navigationItem.leftBarButtonItem = self.editButtonItem;
-
     UIBarButtonItem *dropBoxButton = [[[UIBarButtonItem alloc] initWithTitle:@"Dropbox" style:UIBarButtonItemStylePlain target:self action:@selector(openDropbox:)] autorelease];
     self.navigationItem.rightBarButtonItem = dropBoxButton;
     MakeDownloadDirectory();
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self refresh];
 }
 
 - (void)viewDidUnload
@@ -180,9 +180,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    //[self.detailViewController setLecture:lecture withSlideIndex:inde
-    
     NSMutableArray* lectures = nil;
     
     if (indexPath.section==0) {

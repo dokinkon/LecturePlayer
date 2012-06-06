@@ -44,6 +44,7 @@
     for (NSString* remotePath in _remotePaths) {
         NSString* localPath = [NSString stringWithFormat:@"%@%@", GetDownloadPath(), remotePath];
         [client loadFile:remotePath intoPath:localPath];
+        [_localPaths addObject:localPath];
     }
 }
 
