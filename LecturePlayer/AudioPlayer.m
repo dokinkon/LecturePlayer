@@ -22,15 +22,21 @@ extern "C" {
 
 #define APTAG [AudioPlayer]
 
+static const int kNumberBuffers = 1;
+
 void FFAVCodecContextToASBD(AVCodecContext *avctx, AudioStreamBasicDescription *asbd)
 {
-	//asbd->mFormatID         = avctx->codec_tag;
 	asbd->mSampleRate       = avctx->sample_rate;
 	asbd->mChannelsPerFrame = avctx->channels;
 	asbd->mBytesPerPacket   = avctx->block_align;
 	asbd->mFramesPerPacket  = avctx->frame_size;
 	asbd->mBitsPerChannel   = avctx->bits_per_coded_sample;
-    
+    asbd->mBytesPerPacket   = 4;
+    asbd->mFramesPerPacket  = 1; // For uncompressed audio, the value is 1
+    asbd->mBytesPerFrame    = 4; //_codecCtx->frame_size;
+    asbd->mFormatFlags = kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+    asbd->mReserved = 0;
+
     switch (avctx->sample_fmt) {
         case AV_SAMPLE_FMT_S16:
             asbd->mFormatFlags |= kAudioFormatFlagIsSignedInteger;
@@ -39,7 +45,12 @@ void FFAVCodecContextToASBD(AVCodecContext *avctx, AudioStreamBasicDescription *
             break;
     }
     
-    NSLog(@"SAMPLE FMT:%d", avctx->sample_fmt);
+    NSLog(@"[AUDIO PLAYER]SAMPLE FMT:%d", avctx->sample_fmt);
+    NSLog(@"[AUDIO PLAYER]SAMPLE RATE:%f", asbd->mSampleRate);
+    NSLog(@"[AUDIO PLAYER]FRAME SIZE(mBytesPerFrame):%lu", asbd->mBytesPerFrame);
+    NSLog(@"[AUDIO PLAYER]CHANNELS:%lu", asbd->mChannelsPerFrame);
+    NSLog(@"[AUDIO PLAYER]BITS PER CHANNELS:%lu", asbd->mBitsPerChannel);
+    NSLog(@"[AUDIO PLAYER]BYTES PER PACKET:%lu", asbd->mBytesPerPacket);
 }
 
 @interface AudioPlayer ()
@@ -48,60 +59,76 @@ void FFAVCodecContextToASBD(AVCodecContext *avctx, AudioStreamBasicDescription *
     AVCodecContext* _codecCtx;
     AVCodec* _codec;
     int _audioStreamIndex;
-    AudioQueueRef _audioQueueRef;
+    AudioQueueRef _aqRef;
+    AudioQueueBufferRef _aqBufferRefs[kNumberBuffers];
+    NSMutableArray* _sourceFileNames;
+    int  _sourceIndex;
     BOOL _isPlaying;
-    BOOL _isStarting;
+    BOOL _isStarted;
+    BOOL _isPrepared;
+    BOOL _isSourceOpened;
 }
 
 @property (nonatomic, assign) AVCodecContext* codecCtx;
 @property (nonatomic, assign) AVFormatContext* formatCtx;
 @property (nonatomic, assign) int audioStreamIndex;
-@property (nonatomic, assign) AudioQueueRef audioQueueRef;
+@property (nonatomic, assign) AudioQueueRef aqRef;
 
 @end
 
-void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
+void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
 {    
     AudioPlayer* ap = (AudioPlayer*)inUserData;
     AVPacket avpkt;
-    if (av_read_packet(ap.formatCtx, &avpkt) < 0) {
-        // NO MORE PACKETS
-        [ap stop];
-        return;
+    
+    if (av_read_frame(ap.formatCtx, &avpkt) < 0) {
+        BOOL shouldStop = YES;
+        if ([ap nextSource]) {
+            if (av_read_frame(ap.formatCtx, &avpkt) < 0) {
+                shouldStop = YES;
+            }
+        } else {
+            shouldStop = YES;
+        }
+        
+        if (shouldStop) {
+            [ap performSelectorOnMainThread:@selector(stop) withObject:nil waitUntilDone:NO]; 
+            //[ap stop];
+            return;
+        }
     }
     
     if (avpkt.stream_index != ap.audioStreamIndex) {
+        av_free_packet(&avpkt);
         return;
     }
     
     while (avpkt.size > 0) {
-        int8_t samples[AVCODEC_MAX_AUDIO_FRAME_SIZE];
-        int sampleSize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-        int len = avcodec_decode_audio3(ap.codecCtx, (int16_t*)samples, &sampleSize, &avpkt);
+        
+        AVFrame frame;
+        int got_frame;
+        int len = avcodec_decode_audio4(ap.codecCtx, &frame, &got_frame, &avpkt);
+        
         if (len < 0) {
             NSLog(@"[AUDIO PLAYER][ERROR]:decode error");
-            inBuffer->mAudioDataByteSize = 500;
-            AudioQueueEnqueueBuffer(ap.audioQueueRef, inBuffer, 0, NULL);
             break;
         }
         
-        memcpy(inBuffer->mAudioData, samples, sampleSize);
-        inBuffer->mAudioDataByteSize = sampleSize;
+        NSLog(@"PTS:%lld", frame.pkt_pos);
+        
+        memcpy(inBuffer->mAudioData, frame.data[0], frame.linesize[0]);
+        inBuffer->mAudioDataByteSize = frame.linesize[0];
         avpkt.size -= len;
         avpkt.data += len;
         
-        //NSLog(@"enqueue audio buffer:%d, residule:%d", sampleSize, avpkt.size);
-        //sleep(1);
-        AudioQueueEnqueueBuffer(ap.audioQueueRef, inBuffer, 0, NULL);
+        AudioQueueEnqueueBuffer(ap.aqRef, inBuffer, 0, NULL);
+        //NSLog(@"[AUDIO PLAYER]FEED BUFFER INDEX:%d", [ap checkBufferIndex:inBuffer]);
         
         if (avpkt.size != 0) {
             NSLog(@"[AUDIO PLAYER][WARNING]:avpkt has residuals...%d bytes", avpkt.size);
+            break;
         }
     }
-    
-    
-    
-        
 }
 
 @implementation AudioPlayer
@@ -109,8 +136,9 @@ void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef 
 @synthesize formatCtx = _formatCtx;
 @synthesize audioStreamIndex = _audioStream;
 @synthesize codecCtx = _codecCtx;
-@synthesize audioQueueRef = _audioQueueRef;
+@synthesize aqRef = _aqRef;
 @synthesize isPlaying = _isPlaying;
+@synthesize sourceFileNames = _sourceFileNames;
 
 + (void)initFFEngine
 {
@@ -118,52 +146,107 @@ void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef 
     av_register_all();
 }
 
+- (id)init
+{
+    if ((self=[super init])) {
+        _isPrepared = NO;
+        _isPlaying  = NO;
+        _isSourceOpened = NO;
+        _sourceIndex = 0;
+        _formatCtx = NULL;
+        _codecCtx  = NULL;
+        _codec     = NULL;
+        
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [self stop];
+    [_sourceFileNames release];
+    [super dealloc];
+}
+
 - (void)stop
 {
-    if (!_isPlaying)
+    if (!_isPlaying || !_isPrepared)
         return;
-    AudioQueueStop(_audioQueueRef, YES);
-    NSLog(@"[AUDIO PLAYER] STOP");
-    avformat_free_context(_formatCtx);
+    
+    AudioQueueStop(_aqRef, YES);
+    for (int i=0;i<kNumberBuffers;++i) {
+        AudioQueueFreeBuffer(_aqRef, _aqBufferRefs[i]);
+    }
+    [self closeSource];
     _formatCtx = NULL;
     _isPlaying = NO;
-    _isStarting = NO;
+    _isPrepared = NO;
+    NSLog(@"[AUDIO PLAYER]STOP");
 }
 
 - (void)pause
 {
-    if (!_isPlaying || !_isStarting)
+    if (!_isPlaying || !_isPrepared)
         return;
-    AudioQueuePause(_audioQueueRef);
+    AudioQueuePause(_aqRef);
     _isPlaying = NO;
+     NSLog(@"[AUDIO PLAYER]PAUSE");
 }
 
 - (void)resume
 {
-    if (_isPlaying || !_isStarting)
+    if (_isPlaying || !_isPrepared)
         return;
     
-    AudioQueueStart(_audioQueueRef, NULL);
+    long ret;
+    
+    if ((ret = AudioQueueStart(_aqRef, NULL))!=0) {
+        NSLog(@"[AUDIO PLAYER][ERROR]:AudioQueueStart, ERRNO:%ld", ret);
+        return;
+    }
     _isPlaying = YES;
+    NSLog(@"[AUDIO PLAYER]RESUME");
 }
 
-- (BOOL)play:(NSString*)fileName
+- (void)seekTo:(int)t
 {
+    
+}
+
+- (BOOL)nextSource
+{
+    if (_sourceIndex >= [_sourceFileNames count]-1) {
+        return NO;
+    }
+    
+    if ([self openSource:_sourceIndex+1]) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)openSource:(int)index
+{
+    if (_isSourceOpened) {
+        //[self closeSource];
+    }
+    
+    NSString* fileName = (NSString*)[_sourceFileNames objectAtIndex:index];
     if (!fileName) {
         NSLog(@"[AUDIO PLAYER][ERROR]:fileName is nil");
-        return false;
+        return NO;
     }
     
     _formatCtx = avformat_alloc_context();
-    avformat_open_input(&_formatCtx, [fileName cStringUsingEncoding:NSUTF8StringEncoding], NULL, NULL);
-    
-    //avformat_free_context(pFormatCtx);
-    
-    if (avformat_find_stream_info(_formatCtx, 0) < 0) {
-        NSLog(@"[AUDIO PLAYER][ERROR]:Failed to find stream in %@", fileName);
-        return false;
+    if (0!=avformat_open_input(&_formatCtx, [fileName cStringUsingEncoding:NSUTF8StringEncoding], NULL, NULL)) {
+        NSLog(@"[AUDIO PLAYER][ERROR]:avformat_open_input error");
+        avformat_close_input(&_formatCtx);
+        avformat_free_context(_formatCtx);
+        _formatCtx = NULL;
+        return NO;
     }
     
+    // Find audio stream index
     _audioStreamIndex = -1;
     for (int i=0;i<_formatCtx->nb_streams;i++) {
         if (_formatCtx->streams[i]->codec->codec_type== AVMEDIA_TYPE_AUDIO) {
@@ -174,7 +257,10 @@ void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef 
     
     if (-1==_audioStreamIndex) {
         NSLog(@"[AUDIO PLARER][ERROR]:Cannot find audio stream in %@", fileName);
-        return false;
+        avformat_close_input(&_formatCtx);
+        avformat_free_context(_formatCtx);
+        _formatCtx = NULL;
+        return NO;
     }
     
     _codecCtx = _formatCtx->streams[_audioStreamIndex]->codec;
@@ -182,7 +268,10 @@ void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef 
     
     if (!_codec) {
         NSLog(@"[AUDIO PLARER][ERROR]:Cannot find codec, CodecId:%d", _codecCtx->codec_id);
-        return false;
+        avformat_close_input(&_formatCtx);
+        avformat_free_context(_formatCtx);
+        _formatCtx = NULL;
+        return NO;
     }
     
     if (_codec->capabilities & CODEC_CAP_TRUNCATED) {
@@ -191,59 +280,89 @@ void AQOutputCallback(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef 
     
     if (0!=avcodec_open2(_codecCtx, _codec, 0)) {
         NSLog(@"[AUDIO PLARER][ERROR]:Failed to open codec");
-        return false;
+        avformat_close_input(&_formatCtx);
+        avformat_free_context(_formatCtx);
+        _formatCtx = NULL;
+        return NO;
     }
     
+    if (!_isPrepared) {
+        [self prepare];
+    }
+    
+    _isSourceOpened = YES;
+    _sourceIndex = index;
+    NSLog(@"[AUDIO PLAYER]OPEN SOURCE:%d", _sourceIndex);
+    return YES;
+}
+
+- (void)closeSource
+{
+    if (!_isSourceOpened)
+        return;
+    
+    avformat_close_input(&_formatCtx);
+    //avformat_free_context(_formatCtx);
+    _formatCtx = NULL;    
+    _isSourceOpened = NO;
+    NSLog(@"[AUDIO PLAYER]CLOSE SOURCE:%d", _sourceIndex);
+}
+
+- (BOOL)prepare
+{
+    _isPrepared = NO;
+    
     AudioStreamBasicDescription asbd = {0};
-    asbd.mSampleRate = _codecCtx->sample_rate;
     asbd.mFormatID = kAudioFormatLinearPCM;
-    asbd.mFormatFlags = kAudioFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-    asbd.mBytesPerPacket = 4;
-    asbd.mFramesPerPacket = 1; // For uncompressed audio, the value is 1
-    asbd.mBytesPerFrame = 4;//_codecCtx->frame_size;
-    asbd.mChannelsPerFrame = _codecCtx->channels;
-    asbd.mReserved = 0;
-    
     FFAVCodecContextToASBD(_codecCtx, &asbd);
-    asbd.mBytesPerPacket = 4;
-    asbd.mFramesPerPacket = 1; // For uncompressed audio, the value is 1
-    asbd.mBytesPerFrame = 4;//_codecCtx->frame_size;
-    
-    
-    NSLog(@"[AUDIO PLAYER]SAMPLE RATE:%f", asbd.mSampleRate);
-    NSLog(@"[AUDIO PLAYER]FRAME SIZE(mBytesPerFrame):%lu", asbd.mBytesPerFrame);
-    NSLog(@"[AUDIO PLAYER]CHANNELS:%lu", asbd.mChannelsPerFrame);
-    NSLog(@"[AUDIO PLAYER]BITS PER CHANNELS:%lu", asbd.mBitsPerChannel);
-    NSLog(@"[AUDIO PLAYER]BYTES PER PACKET:%lu", asbd.mBytesPerPacket);
-    
+        
     OSStatus ret;
-    if ((ret = AudioQueueNewOutput(&asbd, AQOutputCallback, self, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &_audioQueueRef))!=0) {
+    if ((ret = AudioQueueNewOutput(&asbd, AQDecodeStreamToBuffer, self, NULL/*CFRunLoopGetCurrent()*/, kCFRunLoopCommonModes, 0, &_aqRef))!=0) {
         NSLog(@"[AUDIO PLAYER][ERROR]:AudioQueueNewOutput");
         return NO;
     }
     
-    AudioQueueBufferRef audioQueueBufferRef;
-    if ((ret = AudioQueueAllocateBuffer(_audioQueueRef, AVCODEC_MAX_AUDIO_FRAME_SIZE, &audioQueueBufferRef))!=0) {
-        NSLog(@"[AUDIO PLAYER][ERROR]:AudioQueueAllocateBuffer, ERRNO:%ld", ret);
-        return NO;
+    
+    for (int i=0;i<kNumberBuffers;++i) {
+        if ((ret = AudioQueueAllocateBuffer(_aqRef, AVCODEC_MAX_AUDIO_FRAME_SIZE, &_aqBufferRefs[i]))!=0) {
+            NSLog(@"[AUDIO PLAYER][ERROR]:AudioQueueAllocateBuffer, ERRNO:%ld", ret);
+            return NO;
+        }
+        AQDecodeStreamToBuffer(self, _aqRef, _aqBufferRefs[i]);
     }
     
-    AQOutputCallback(self, _audioQueueRef, audioQueueBufferRef);
-    
-    Float32 gain = 1.0;                                       // 1
+    Float32 gain = 1.0;
     // Optionally, allow user to override gain setting here
-    AudioQueueSetParameter(_audioQueueRef, kAudioQueueParam_Volume, gain);
+    AudioQueueSetParameter(_aqRef, kAudioQueueParam_Volume, gain);
     
-    if ((ret = AudioQueueStart(_audioQueueRef, NULL))!=0) {
-        NSLog(@"[AUDIO PLAYER][ERROR]:AudioQueueStart, ERRNO:%ld", ret);
-        return NO;
+    _isPrepared = YES;
+    NSLog(@"[AUDIO PLAYER]OUTPUT DEVICE IS PREPARED.");
+    return YES;
+}
+
+- (void)play
+{
+    if (!_isSourceOpened) {
+        [self openSource:0];
     }
     
-    _isPlaying = YES;
-    _isStarting = YES;
-    NSLog(@"[AUDIO PLAYER]PLAY:%@", [fileName lastPathComponent]);
-    return YES;
+    NSLog(@"[AUDIO PLAYER]PLAY");
     
+    [self resume];
+    
+    //do {                                           
+        //CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.25, false);
+    //} while (1);
+}
+
+- (int)checkBufferIndex:(AudioQueueBufferRef)inBuffer
+{
+    for (int i=0;i<kNumberBuffers;++i) {
+        if (inBuffer==_aqBufferRefs[i]) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 @end

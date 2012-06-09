@@ -604,7 +604,7 @@
 		C11DD8AF156678FA0044C301 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Meng-Yuan Tzeng (83A7J3YAR5)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: chao-chih lin (9UJHE2D955)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -616,7 +616,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/fat/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "7696B8F9-09D1-4C28-92C9-CB866147C980";
+				PROVISIONING_PROFILE = "12C41818-FD7A-4E52-9E27-2708281B662A";
 				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/i386/include\"";
 				WRAPPER_EXTENSION = app;
 			};
@@ -625,7 +625,7 @@
 		C11DD8B0156678FA0044C301 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Meng-Yuan Tzeng (83A7J3YAR5)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: chao-chih lin (9UJHE2D955)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -637,7 +637,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/fat/lib\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "7696B8F9-09D1-4C28-92C9-CB866147C980";
+				PROVISIONING_PROFILE = "12C41818-FD7A-4E52-9E27-2708281B662A";
 				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)/LecturePlayer/ffmpeg/i386/include\"";
 				WRAPPER_EXTENSION = app;
 			};

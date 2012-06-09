@@ -14,15 +14,20 @@
 }
 
 @property (nonatomic, readonly) BOOL isPlaying;
+@property (nonatomic, retain) NSMutableArray* sourceFileNames;
 
 + (void)initFFEngine;
 
-- (BOOL)play:(NSString*)fileName;
+- (void)play;
 
 - (void)stop;
 
 - (void)pause;
 
 - (void)resume;
+
+- (void)seekTo:(int)t;
+
+- (BOOL)nextSource;
 
 @end

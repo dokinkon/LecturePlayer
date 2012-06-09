@@ -109,8 +109,7 @@ NSString* FormatTickTime(int tick)
 
 @implementation DetailViewController
 
-@synthesize detailItem = _detailItem;
-//@synthesize bstFilePath = _bstFilePath;
+//@synthesize detailItem = _detailItem;
 @synthesize lecture = _lecture;
 @synthesize currentTimeLabel = _currentTimeLabel;
 @synthesize masterPopoverController = _masterPopoverController;
@@ -124,7 +123,7 @@ NSString* FormatTickTime(int tick)
 
 - (void)dealloc
 {
-    [_detailItem release];
+    //[_detailItem release];
     [_currentTimeLabel release];
     [_masterPopoverController release];
     
@@ -169,15 +168,6 @@ NSString* FormatTickTime(int tick)
 {
     NSLog(@"NextButtonPressed:");
     [self doNextSlide];
-    /*
-    if (!_lecture)
-        return;
-    
-    if (_slideIndex + 1 < [_lecture.slides count]) {
-        [self playSlidexIndex:_slideIndex+1];
-    } else {
-        [self displayAlert:@"提示" withMessage:@"課程完畢"];
-    }*/
 }
 
 - (IBAction)prevButtonPressed:(id)sender
@@ -216,9 +206,10 @@ NSString* FormatTickTime(int tick)
 {
     UISlider* s = (UISlider*)sender;
     int val = s.value;
-    _playerMainForm->PlayObject->script->GotoTime(val);
+    //_playerMainForm->PlayObject->script->GotoTime(val);
+    [self doSeekTime:val];
     _countTime = val;
-    [_audioPlayer stop];
+    //[_audioPlayer stop];
     NSLog(@"SLIDER MOVED:%d", val);
 }
 
@@ -226,6 +217,7 @@ NSString* FormatTickTime(int tick)
 {
     return _playerMainForm->PlayObject->audio_playlist.size();
 }
+
 
 - (NSString*)getAudioFileName:(int)index
 {
@@ -238,6 +230,33 @@ NSString* FormatTickTime(int tick)
     return [NSString stringWithCString:playList[index].c_str() encoding:NSUTF8StringEncoding];
 }
 
+- (void)doSeekTime:(int)tickTime
+{
+    if (tickTime < 0 || tickTime > _totalScriptTime) 
+        return;
+    
+    [_audioPlayer pause];
+    
+    _canvasView.image = nil;
+    [self playScriptCommandsUntilTime:tickTime fromHead:YES];
+    _countTime = tickTime;
+    self.currentTimeLabel.text = FormatTickTime(tickTime);
+    
+    //int index = TickTimeToAudioIndex(_countTime);
+    
+    /*
+    if (_audioIndex!=index) {
+        [_audioPlayer stop];
+        [_audioPlayer prepare:[self getAudioFileName:index]];
+        _audioIndex = index;
+        
+    }
+    
+    if (_isPlaying) {
+        [_audioPlayer play];
+    }*/
+}
+
 - (void)doStart
 {
     if (!_lecture) {
@@ -247,11 +266,9 @@ NSString* FormatTickTime(int tick)
     if (_isStarted)
         return;
     
-    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
-    _audioIndex = 0;
     
-    NSString* fileName = [self getAudioFileName:0];
-    [_audioPlayer play:fileName];
+    _audioIndex = 0;
+    [_audioPlayer play];
     _isStarted = YES;
     
     [self doResume];
@@ -264,6 +281,11 @@ NSString* FormatTickTime(int tick)
     
     if (!_isPlaying)
         return;
+    
+    if (_timer) {
+        [_timer invalidate];
+        _timer = nil;
+    }
     
     [_audioPlayer pause];
     
@@ -280,6 +302,7 @@ NSString* FormatTickTime(int tick)
     
     [_audioPlayer resume];
     [self.playButton setImage:_pauseImage forState:UIControlStateNormal];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
 }
 
@@ -287,11 +310,7 @@ NSString* FormatTickTime(int tick)
 {
     [self doPause];
     
-    if (_timer) {
-        [_timer invalidate];
-        _timer = nil;
-    }
-   
+       
     _countTime = 0;
     
     if (_hasLectureLoaded) {
@@ -440,13 +459,14 @@ NSString* FormatTickTime(int tick)
     _cursorView.frame = rect;
 }
 
-- (void)update
+- (void)playScriptCommandsUntilTime:(int)tickTime fromHead:(BOOL)fromHead
 {
-    if (!_isPlaying)
-        return;
+    if (fromHead) {
+        _playerMainForm->PlayObject->script->GotoBegin();
+    }
     
     int actionTime = _playerMainForm->PlayObject->script->QueryTime();
-    while (actionTime <= _countTime) {
+    while (actionTime <= tickTime) {
         NSString* action = [NSString stringWithCString:_playerMainForm->PlayObject->action.Action.c_str() encoding:NSUTF8StringEncoding];
         
         if ([action isEqualToString:@"System.SetPictureVisible"]) {
@@ -461,24 +481,36 @@ NSString* FormatTickTime(int tick)
         } else if ([action isEqualToString:@"System.End"]) {
             [self doActionSystemEnd];
         }
-            
+        
         //NSLog(@"TIME:%d ACTION:%@",actionTime, action);
         _playerMainForm->PlayObject->script->NextAction(_playerMainForm->PlayObject->action);
         actionTime = _playerMainForm->PlayObject->script->QueryTime();
     }
+}
+
+- (void)update
+{
+    if (!_isPlaying)
+        return;
+    
+    [self playScriptCommandsUntilTime:_countTime fromHead:NO];
+    
     _countTime += 1;
     self.progressBar.value = _countTime;
-    self.currentTimeLabel.text = FormatTickTime(_countTime);//[NSString stringWithFormat:@"%d", _countTime];
+    self.currentTimeLabel.text = FormatTickTime(_countTime);
     
+    /*
     if (!_audioPlayer.isPlaying) {
         int idx = TickTimeToAudioIndex(_countTime);
         if (_audioIndex + 1 > idx ) {
             // AUDIO should wait
         } else {
             _audioIndex++;
-            [_audioPlayer play:[self getAudioFileName:_audioIndex]];
+            [_audioPlayer stop];
+            [_audioPlayer prepare:[self getAudioFileName:_audioIndex]];
+            [_audioPlayer play];
         }
-    }
+    }*/
     
     //NSLog(@"NEXT TIME:%d", actionTime);
 }
@@ -631,6 +663,12 @@ using std::string;
         
         int t = [self getAudioListSize];
         NSLog(@"ESTIMATE AUDIO TIME:%dms", t*10000);
+        
+        NSMutableArray* sources = [NSMutableArray arrayWithCapacity:3];
+        for (int i=0;i<t;++i) {
+            [sources addObject:[self getAudioFileName:i]];
+        }
+        _audioPlayer.sourceFileNames = sources;
         
         self.progressBar.minimumValue = 0;
         self.progressBar.maximumValue = _totalScriptTime;
