@@ -14,7 +14,8 @@
 }
 
 @property (nonatomic, readonly) BOOL isPlaying;
-@property (nonatomic, retain) NSMutableArray* sourceFileNames;
+@property (nonatomic, readonly) BOOL isSourceOpened;
+@property (nonatomic, retain) NSMutableArray* sourceNames;
 
 + (void)initFFEngine;
 

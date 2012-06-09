@@ -166,13 +166,13 @@ NSString* FormatTickTime(int tick)
 
 - (IBAction)nextButtonPressed:(id)sender
 {
-    NSLog(@"NextButtonPressed:");
+    NSLog(@"[DETAIL VIEW] NextButtonPressed:");
     [self doNextSlide];
 }
 
 - (IBAction)prevButtonPressed:(id)sender
 {
-    NSLog(@"PrevButtonPressed:");
+    NSLog(@"[DETAIL VIEW] PrevButtonPressed:");
     if (!_lecture) 
         return;
     
@@ -210,7 +210,7 @@ NSString* FormatTickTime(int tick)
     [self doSeekTime:val];
     _countTime = val;
     //[_audioPlayer stop];
-    NSLog(@"SLIDER MOVED:%d", val);
+    NSLog(@"[DETAIL VIEW] SEEK TO:%d", val);
 }
 
 - (int)getAudioListSize
@@ -223,7 +223,7 @@ NSString* FormatTickTime(int tick)
 {
     std::vector<std::string>& playList = _playerMainForm->PlayObject->audio_playlist;
     if (index >= playList.size()) {
-        NSLog(@"ERROR:audio index out of range");
+        NSLog(@"[DETAIL VIEW][ERROR] audio index out of range");
         return nil;
     }
     
@@ -302,7 +302,7 @@ NSString* FormatTickTime(int tick)
     
     [_audioPlayer resume];
     [self.playButton setImage:_pauseImage forState:UIControlStateNormal];
-    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
+    //_timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
 }
 
@@ -317,7 +317,7 @@ NSString* FormatTickTime(int tick)
         _playerMainForm->PlayObject->script->GotoBegin();
     }
     
-    [_audioPlayer stop];
+    //[_audioPlayer stop];
     _canvasView.image = nil;
     self.progressBar.value = 0;
      _isPlaying = NO;
@@ -379,9 +379,9 @@ NSString* FormatTickTime(int tick)
 
 - (void)doActionSystemEnd
 {
-    NSLog(@"System.End");
+    NSLog(@"[DETAIL VIEW] System.End");
     [self doStop];
-    [self doNextSlide];
+    //[self doNextSlide];
 }
 
 - (void)doActionBeginPen
@@ -446,7 +446,7 @@ NSString* FormatTickTime(int tick)
     } else if ([param2 isEqualToString:@"EndGeometryGraph"]) {
     } else if ([param2 isEqualToString:@"Clear"]) {
     } else {
-        NSLog(@"Unknown Draw Command:%@", param2);
+        NSLog(@"[DETAIL VIEW][COMMAND] Unknown Draw Command:%@", param2);
     }
 }
 
@@ -493,7 +493,7 @@ NSString* FormatTickTime(int tick)
     if (!_isPlaying)
         return;
     
-    [self playScriptCommandsUntilTime:_countTime fromHead:NO];
+    //[self playScriptCommandsUntilTime:_countTime fromHead:NO];
     
     _countTime += 1;
     self.progressBar.value = _countTime;
@@ -610,8 +610,8 @@ using std::string;
             
             //if (![imagePath isEqualToString:@"material/Beam_TitleMaster_Background_Rectangle 1.jpg"])
             {
-                NSLog(@"CREATE SCENE IMAGE:%@", imagePath);
-                NSLog(@"X:%d Y:%d W:%d H:%d SIZE:%d", x, y, w, h, size);
+                NSLog(@"[DETAIL VIEW] CREATE SCENE IMAGE:%@", imagePath);
+                NSLog(@"[DETAIL VIEW] X:%d Y:%d W:%d H:%d SIZE:%d", x, y, w, h, size);
             
                 NSData* data = [NSData dataWithBytes:buffer length:size];
                 UIImage* image = [UIImage imageWithData:data];
@@ -655,20 +655,24 @@ using std::string;
 {
     [self enableUIControls:NO];
     if (_playerMainForm->LoadFile([fileName cStringUsingEncoding:NSUTF8StringEncoding])) {
-        NSLog(@"LOAD SLIDE SUCESSFUL");
+        
+        
         _hasLectureLoaded = YES;
         _totalScriptTime = _playerMainForm->PlayObject->script->m_TotalScriptTime;
-        
-        NSLog(@"TOTAL SCRIPT TIME:%dms", _totalScriptTime*10);
-        
         int t = [self getAudioListSize];
-        NSLog(@"ESTIMATE AUDIO TIME:%dms", t*10000);
+        
+        NSLog(@"----------------------------------------------");
+        NSLog(@"[DETAIL VIEW] LOAD SLIDE SUCESSFUL");
+        NSLog(@"[DETAIL VIEW] TOTAL SCRIPT TIME:%dms", _totalScriptTime*10);
+        NSLog(@"[DETAIL VIEW] TOTAL AUDIO SOURCES:%d", t);
+        NSLog(@"[DETAIL VIEW] ESTIMATE AUDIO TIME:%dms", t*10000);
+        NSLog(@"----------------------------------------------");
         
         NSMutableArray* sources = [NSMutableArray arrayWithCapacity:3];
         for (int i=0;i<t;++i) {
             [sources addObject:[self getAudioFileName:i]];
         }
-        _audioPlayer.sourceFileNames = sources;
+        _audioPlayer.sourceNames = sources;
         
         self.progressBar.minimumValue = 0;
         self.progressBar.maximumValue = _totalScriptTime;
