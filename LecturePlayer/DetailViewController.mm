@@ -59,7 +59,6 @@ NSString* FormatTickTime(int tick)
     BOOL _isStarted;
     BOOL _hasLectureLoaded;
     int _countTime;
-    int _audioIndex;
     int _slideIndex;
     
     AudioPlayer* _audioPlayer;
@@ -112,6 +111,7 @@ NSString* FormatTickTime(int tick)
 //@synthesize detailItem = _detailItem;
 @synthesize lecture = _lecture;
 @synthesize currentTimeLabel = _currentTimeLabel;
+@synthesize totalTimeLabel   = _totalTimeLabel;
 @synthesize masterPopoverController = _masterPopoverController;
 
 @synthesize playButton = _playButton;
@@ -119,12 +119,12 @@ NSString* FormatTickTime(int tick)
 @synthesize nextButton = _nextButton;
 @synthesize prevButton = _prevButton;
 
-@synthesize progressBar = _progressBar;
+@synthesize seekBar = _seekBar;
 
 - (void)dealloc
 {
-    //[_detailItem release];
     [_currentTimeLabel release];
+    [_totalTimeLabel release];
     [_masterPopoverController release];
     
     [_playButton release];
@@ -132,7 +132,7 @@ NSString* FormatTickTime(int tick)
     [_nextButton release];
     [_prevButton release];
     
-    [_progressBar release];
+    [_seekBar release];
     [_audioPlayer release];
     
     [_playImage release];
@@ -166,25 +166,19 @@ NSString* FormatTickTime(int tick)
 
 - (IBAction)nextButtonPressed:(id)sender
 {
-    NSLog(@"[DETAIL VIEW] NextButtonPressed:");
-    [self doNextSlide];
+    NSLog(@"[DV] NextButtonPressed:");
+    [self doNextSlide:NO];
 }
 
 - (IBAction)prevButtonPressed:(id)sender
 {
-    NSLog(@"[DETAIL VIEW] PrevButtonPressed:");
-    if (!_lecture) 
-        return;
-    
-    if (_slideIndex - 1 < 0) {
-        [self displayAlert:@"提示" withMessage:@"前面沒有了"];
-    } else {
-        [self playSlidexIndex:_slideIndex - 1];
-    }
+    NSLog(@"[DV] PrevButtonPressed:");
+    [self doPrevSlide:NO];
 }
 
 - (IBAction)playButtonPressed:(id)sender
 {
+    NSLog(@"[DV] PLAY BUTTON PRESSED");
     if (!_isStarted) {
         [self doStart];
     } else {
@@ -210,7 +204,7 @@ NSString* FormatTickTime(int tick)
     [self doSeekTime:val];
     _countTime = val;
     //[_audioPlayer stop];
-    NSLog(@"[DETAIL VIEW] SEEK TO:%d", val);
+    NSLog(@"[DV] SEEK TO:%d", val);
 }
 
 - (int)getAudioListSize
@@ -218,12 +212,11 @@ NSString* FormatTickTime(int tick)
     return _playerMainForm->PlayObject->audio_playlist.size();
 }
 
-
 - (NSString*)getAudioFileName:(int)index
 {
     std::vector<std::string>& playList = _playerMainForm->PlayObject->audio_playlist;
     if (index >= playList.size()) {
-        NSLog(@"[DETAIL VIEW][ERROR] audio index out of range");
+        NSLog(@"[DV][ERROR] audio index out of range");
         return nil;
     }
     
@@ -240,21 +233,7 @@ NSString* FormatTickTime(int tick)
     _canvasView.image = nil;
     [self playScriptCommandsUntilTime:tickTime fromHead:YES];
     _countTime = tickTime;
-    self.currentTimeLabel.text = FormatTickTime(tickTime);
-    
-    //int index = TickTimeToAudioIndex(_countTime);
-    
-    /*
-    if (_audioIndex!=index) {
-        [_audioPlayer stop];
-        [_audioPlayer prepare:[self getAudioFileName:index]];
-        _audioIndex = index;
-        
-    }
-    
-    if (_isPlaying) {
-        [_audioPlayer play];
-    }*/
+    [self updateTimeInfo];
 }
 
 - (void)doStart
@@ -266,31 +245,14 @@ NSString* FormatTickTime(int tick)
     if (_isStarted)
         return;
     
-    
-    _audioIndex = 0;
     [_audioPlayer play];
+    _playerMainForm->PlayObject->script->GotoBegin();
+    _playerMainForm->PlayObject->script->NextAction(_playerMainForm->PlayObject->action);
+    _countTime = 0;
     _isStarted = YES;
     
     [self doResume];
-}
-
-- (void)doPause
-{
-    if (!_isStarted)
-        return;
-    
-    if (!_isPlaying)
-        return;
-    
-    if (_timer) {
-        [_timer invalidate];
-        _timer = nil;
-    }
-    
-    [_audioPlayer pause];
-    
-    [self.playButton setImage:_playImage forState:UIControlStateNormal];
-    _isPlaying = NO;
+    NSLog(@"[DV] START");
 }
 
 - (void)doResume
@@ -302,35 +264,75 @@ NSString* FormatTickTime(int tick)
     
     [_audioPlayer resume];
     [self.playButton setImage:_pauseImage forState:UIControlStateNormal];
-    //_timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
+    NSLog(@"[DV] RESUME");
+}
+
+- (void)doPause
+{
+    if (!_isStarted || !_isPlaying)
+        return;
+    
+    _isPlaying = NO;
+    
+    if (_timer) {
+        [_timer invalidate];
+        _timer = nil;
+    }
+    
+    [_audioPlayer pause];
+    
+    [self.playButton setImage:_playImage forState:UIControlStateNormal];
+    NSLog(@"[DV] PAUSE");
 }
 
 - (void)doStop
 {
     [self doPause];
     
-       
     _countTime = 0;
     
-    if (_hasLectureLoaded) {
-        _playerMainForm->PlayObject->script->GotoBegin();
-    }
+    //if (_hasLectureLoaded) {
+        //_playerMainForm->PlayObject->script->GotoBegin();
+    //}
     
-    //[_audioPlayer stop];
+    [_audioPlayer stop];
     _canvasView.image = nil;
-    self.progressBar.value = 0;
+    [self updateTimeInfo];
      _isPlaying = NO;
     _isStarted = NO;
+    NSLog(@"[DV] STOP");
 }
 
-- (void)doNextSlide
+- (void)doPrevSlide:(BOOL)autoPlay
+{
+    if (!_lecture) 
+        return;
+    
+    if (_slideIndex - 1 < 0) {
+        [self displayAlert:@"提示" withMessage:@"前面沒有了"];
+    } else {
+        if ([self loadSlideWithIndex:_slideIndex-1]) {
+            if (autoPlay) {
+                [self doStart];
+            }
+        }
+    }
+}
+
+- (void)doNextSlide:(BOOL)autoPlay
 {
     if (!_lecture)
         return;
     
     if (_slideIndex + 1 < [_lecture.slides count]) {
-        [self playSlidexIndex:_slideIndex+1];
+        if ([self loadSlideWithIndex:_slideIndex+1]) {
+            if (autoPlay) {
+                [self doStart];
+            }
+        }
+        //[self playSlidexIndex:_slideIndex+1];
     } else {
         [self displayAlert:@"提示" withMessage:@"課程完畢"];
     }    
@@ -379,7 +381,7 @@ NSString* FormatTickTime(int tick)
 
 - (void)doActionSystemEnd
 {
-    NSLog(@"[DETAIL VIEW] System.End");
+    NSLog(@"[DV] System.End");
     [self doStop];
     //[self doNextSlide];
 }
@@ -446,7 +448,7 @@ NSString* FormatTickTime(int tick)
     } else if ([param2 isEqualToString:@"EndGeometryGraph"]) {
     } else if ([param2 isEqualToString:@"Clear"]) {
     } else {
-        NSLog(@"[DETAIL VIEW][COMMAND] Unknown Draw Command:%@", param2);
+        NSLog(@"[DV][COMMAND] Unknown Draw Command:%@", param2);
     }
 }
 
@@ -461,12 +463,16 @@ NSString* FormatTickTime(int tick)
 
 - (void)playScriptCommandsUntilTime:(int)tickTime fromHead:(BOOL)fromHead
 {
+    if (!_isPlaying) {
+        return;
+    }
+    
     if (fromHead) {
         _playerMainForm->PlayObject->script->GotoBegin();
     }
     
     int actionTime = _playerMainForm->PlayObject->script->QueryTime();
-    while (actionTime <= tickTime) {
+    while (actionTime < tickTime) {
         NSString* action = [NSString stringWithCString:_playerMainForm->PlayObject->action.Action.c_str() encoding:NSUTF8StringEncoding];
         
         if ([action isEqualToString:@"System.SetPictureVisible"]) {
@@ -480,6 +486,7 @@ NSString* FormatTickTime(int tick)
             [self doActionSceneDraw];
         } else if ([action isEqualToString:@"System.End"]) {
             [self doActionSystemEnd];
+            break;
         }
         
         //NSLog(@"TIME:%d ACTION:%@",actionTime, action);
@@ -493,25 +500,10 @@ NSString* FormatTickTime(int tick)
     if (!_isPlaying)
         return;
     
-    //[self playScriptCommandsUntilTime:_countTime fromHead:NO];
+    [self playScriptCommandsUntilTime:_countTime fromHead:NO];
     
     _countTime += 1;
-    self.progressBar.value = _countTime;
-    self.currentTimeLabel.text = FormatTickTime(_countTime);
-    
-    /*
-    if (!_audioPlayer.isPlaying) {
-        int idx = TickTimeToAudioIndex(_countTime);
-        if (_audioIndex + 1 > idx ) {
-            // AUDIO should wait
-        } else {
-            _audioIndex++;
-            [_audioPlayer stop];
-            [_audioPlayer prepare:[self getAudioFileName:_audioIndex]];
-            [_audioPlayer play];
-        }
-    }*/
-    
+    [self updateTimeInfo];
     //NSLog(@"NEXT TIME:%d", actionTime);
 }
 
@@ -547,9 +539,17 @@ NSString* FormatTickTime(int tick)
 
 - (void)setLecture:(Lecture *)lecture withSlideIndex:(int)slideIndex
 {
-    _lecture = lecture;
     [self doStop];
-    [self playSlidexIndex:slideIndex];
+    
+    if (_lecture == lecture && slideIndex == _slideIndex) {
+        return;
+    }
+    
+    _lecture = lecture;
+    [self loadSlideWithIndex:slideIndex];
+    //[self doStop];
+    
+    //[self playSlidexIndex:slideIndex];
 }
 
 - (void)dumpResourceRefNames;
@@ -608,23 +608,15 @@ using std::string;
             unsigned char * buffer = _playerMainForm->PlayObject->resource->m_ImageBuffer[key].buffer;
             int size = _playerMainForm->PlayObject->resource->m_ImageBuffer[key].size;
             
-            //if (![imagePath isEqualToString:@"material/Beam_TitleMaster_Background_Rectangle 1.jpg"])
-            {
-                NSLog(@"[DETAIL VIEW] CREATE SCENE IMAGE:%@", imagePath);
-                NSLog(@"[DETAIL VIEW] X:%d Y:%d W:%d H:%d SIZE:%d", x, y, w, h, size);
+            NSData* data = [NSData dataWithBytes:buffer length:size];
+            UIImage* image = [UIImage imageWithData:data];
+            assert(image);
+            UIImageView* imageView = [[UIImageView alloc] initWithImage:image];
+            imageView.frame = CGRectMake(x, y, w, h);
+            [_sceneRootView addSubview:imageView];
             
-                NSData* data = [NSData dataWithBytes:buffer length:size];
-                UIImage* image = [UIImage imageWithData:data];
-                assert(image);
-                UIImageView* imageView = [[UIImageView alloc] initWithImage:image];
-                imageView.frame = CGRectMake(x, y, w, h);
-                //[self.view addSubview:imageView];
-                [_sceneRootView addSubview:imageView];
-            
-                // keep these scene imageview, we will remove later.
-                [_sceneImageViews addObject:imageView];
-            }
-            
+            // keep these scene imageview, we will remove later.
+            [_sceneImageViews addObject:imageView];
             i += 5;
         } else {
             i += 1;
@@ -644,7 +636,7 @@ using std::string;
 
 - (void)enableUIControls:(BOOL)enabled
 {
-    self.progressBar.enabled = enabled;
+    self.seekBar.enabled = enabled;
     self.playButton.enabled = enabled;
     self.stopButton.enabled = enabled;
     self.nextButton.enabled = enabled;
@@ -654,6 +646,7 @@ using std::string;
 - (BOOL)loadSlide:(NSString*)fileName
 {
     [self enableUIControls:NO];
+    [self doStop];
     if (_playerMainForm->LoadFile([fileName cStringUsingEncoding:NSUTF8StringEncoding])) {
         
         
@@ -662,10 +655,10 @@ using std::string;
         int t = [self getAudioListSize];
         
         NSLog(@"----------------------------------------------");
-        NSLog(@"[DETAIL VIEW] LOAD SLIDE SUCESSFUL");
-        NSLog(@"[DETAIL VIEW] TOTAL SCRIPT TIME:%dms", _totalScriptTime*10);
-        NSLog(@"[DETAIL VIEW] TOTAL AUDIO SOURCES:%d", t);
-        NSLog(@"[DETAIL VIEW] ESTIMATE AUDIO TIME:%dms", t*10000);
+        NSLog(@"[DV] LOAD SLIDE SUCESSFUL");
+        NSLog(@"[DV] TOTAL SCRIPT TIME:%@", FormatTickTime(_totalScriptTime));
+        NSLog(@"[DV] TOTAL AUDIO SOURCES:%d", t);
+        NSLog(@"[DV] ESTIMATE AUDIO TIME:%@", FormatTickTime(t*10*100));
         NSLog(@"----------------------------------------------");
         
         NSMutableArray* sources = [NSMutableArray arrayWithCapacity:3];
@@ -674,8 +667,9 @@ using std::string;
         }
         _audioPlayer.sourceNames = sources;
         
-        self.progressBar.minimumValue = 0;
-        self.progressBar.maximumValue = _totalScriptTime;
+        self.seekBar.minimumValue = 0;
+        self.seekBar.maximumValue = _totalScriptTime;
+        self.totalTimeLabel.text = FormatTickTime(_totalScriptTime);
         [self enableUIControls:YES];
         return YES;
     }
@@ -689,7 +683,7 @@ using std::string;
     [alert release];
 }
 
-- (BOOL)playSlidexIndex:(int)index
+- (BOOL)loadSlideWithIndex:(int)index
 {
     if (!_lecture) {
         [self displayAlert:@"錯誤" withMessage:@"請先選取課程投影片"];
@@ -699,6 +693,10 @@ using std::string;
     if (index >= [_lecture.slides count]) {
         [self displayAlert:@"內部錯誤" withMessage:@"Index ouf of range"];
         return NO;
+    }
+    
+    if (_isStarted) {
+        [self doStop];
     }
     
     Slide* slide = (Slide*)[_lecture.slides objectAtIndex:index];
@@ -712,17 +710,35 @@ using std::string;
     [self createSceneImages];
     [self createCanvasView];
     [self createCursorView];
-    [self doStop];
     _slideIndex = index;
-    [self doStart];
     return YES;
+}
+
+- (BOOL)playSlidexIndex:(int)index
+{
+    if (_slideIndex != index) {
+        if ([self loadSlideWithIndex:index]) {
+            [self doStart];
+            return YES;
+        }
+    } else {
+        [self doStart];
+        return YES;
+    }
+    return NO;
+}
+
+- (void)updateTimeInfo
+{
+    self.currentTimeLabel.text = FormatTickTime(_countTime);
+    self.seekBar.value = _countTime;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.progressBar.value = 0.0f;
-    self.progressBar.enabled = NO;
+    self.seekBar.value = 0.0f;
+    self.seekBar.enabled = NO;
     self.playButton.enabled = NO;
     self.stopButton.enabled = NO;
     self.nextButton.enabled = NO;
@@ -743,8 +759,9 @@ using std::string;
     self.nextButton = nil;
     self.prevButton = nil;
     
-    self.progressBar = nil;
+    self.seekBar = nil;
     self.currentTimeLabel = nil;
+    self.totalTimeLabel   = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

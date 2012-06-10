@@ -28,8 +28,9 @@
 @property (strong, nonatomic) IBOutlet UIButton* nextButton;
 @property (strong, nonatomic) IBOutlet UIButton* prevButton;
 
-@property (strong, nonatomic) IBOutlet UISlider* progressBar;
+@property (strong, nonatomic) IBOutlet UISlider* seekBar;
 
 @property (strong, nonatomic) IBOutlet UILabel* currentTimeLabel;
+@property (strong, nonatomic) IBOutlet UILabel* totalTimeLabel;
 
 @end

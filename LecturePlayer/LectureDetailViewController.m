@@ -122,6 +122,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSLog(@"[LDV] SELECT LECTURE:%@ WITH INDEX:%d", _lecture.title, indexPath.row);
     [_detailViewController setLecture:_lecture withSlideIndex:indexPath.row];
 }
 

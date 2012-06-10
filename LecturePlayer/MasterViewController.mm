@@ -189,8 +189,10 @@
     }
     
     if (lectures) {
+        
         LectureDetailViewController* controller = [[LectureDetailViewController alloc] initWithNibName:@"LectureDetailViewController" bundle:nil];
         Lecture* lecture = [lectures objectAtIndex:indexPath.row];
+        NSLog(@"[MV] SELECT LECTURE:%@", lecture.title);
         [controller setLecture:lecture];
         [controller setDetailViewController:self.detailViewController];
         [self.navigationController pushViewController:controller animated:YES];
