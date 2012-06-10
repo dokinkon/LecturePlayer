@@ -7,6 +7,7 @@
 //
 
 #import "RemoteLectureViewController.h"
+#import "DetailViewController.h"
 #import "DropboxSDK/DropboxSDK.h"
 #import "Utility.h"
 #import "DownloadSession.h"
@@ -34,6 +35,8 @@ typedef enum {
 @end
 
 @implementation RemoteLectureViewController
+
+@synthesize detailViewController = _detailViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -207,6 +210,9 @@ typedef enum {
     for (DownloadSession* session in _downloadSessions) {
         if ([session isCompleted]) {
             [self hideBusyIndicator];
+            if (self.detailViewController) {
+                [self.detailViewController hideBusyIndicator];
+            }
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"恭喜" 
                                                            message:@"下載已完成" 
                                                           delegate:nil 
@@ -231,6 +237,10 @@ typedef enum {
         return;
     
     [self showBusyIndicator];
+    if (self.detailViewController) {
+        [self.detailViewController doStop];
+        [self.detailViewController showBusyIndicator];
+    }
     
     _opCode = kPrepareDownloadList;
     [_restClient loadMetadata:[NSString stringWithFormat:@"/%@", _tobeDownload]];
@@ -253,21 +263,12 @@ typedef enum {
 {
     if (_busyIndicator)
         return;
-    _busyIndicator = [[UIAlertView alloc] initWithTitle:@"請稍候..."
-                                                message:nil
+    _busyIndicator = [[UIAlertView alloc] initWithTitle:@"下載中"
+                                                message:@"請稍候..."
                                                delegate:nil
                                       cancelButtonTitle:nil
                                       otherButtonTitles:nil];
     [_busyIndicator show];
-    
-    UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc]
-                                          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    indicator.center = CGPointMake(_busyIndicator.frame.size.width/2, _busyIndicator.frame.size.height-40);
-    //indicator.center = CGPointMake(_busyIndicator.bounds.size.height-40, _busyIndicator.bounds.size.width/2);
-    //indicator.center = CGPointMake(100, 0);
-    [indicator startAnimating];
-    [_busyIndicator addSubview:indicator];
-    [indicator release];
 }
 - (void)hideBusyIndicator
 {

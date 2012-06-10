@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "DropboxSDK/DropboxSDK.h"
 
+@class DetailViewController;
+
 @interface RemoteLectureViewController : UITableViewController<DBRestClientDelegate, UIAlertViewDelegate>
+
+@property (nonatomic, assign) DetailViewController* detailViewController;
 
 @end

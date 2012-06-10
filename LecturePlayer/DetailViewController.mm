@@ -49,9 +49,11 @@ NSString* FormatTickTime(int tick)
     BOOL _isPlaying;
     BOOL _isStarted;
     BOOL _hasLectureLoaded;
+    BOOL _isBatchDrawOpened;
     int _countTime;
     int _slideIndex;
-    int _passedTimeInMS;
+    //int _passedTimeInMS;
+    int _fps;
     
     AudioPlayer* _audioPlayer;
     
@@ -231,7 +233,7 @@ NSString* FormatTickTime(int tick)
     _canvasView.image = nil;
     [self playScriptCommandsUntilTime:tickTime fromHead:YES];
     _countTime = tickTime;
-    _passedTimeInMS = tickTime * 10;
+
     
     if (isPlaying) {
         [self doResume];
@@ -254,8 +256,8 @@ NSString* FormatTickTime(int tick)
     _playerMainForm->PlayObject->script->GotoBegin();
     _playerMainForm->PlayObject->script->NextAction(_playerMainForm->PlayObject->action);
     _countTime = 0;
-    _passedTimeInMS = 0;
     _isStarted = YES;
+    _isBatchDrawOpened = NO;
     
     [self doResume];
     NSLog(@"[DV] START");
@@ -270,7 +272,7 @@ NSString* FormatTickTime(int tick)
     
     [_audioPlayer resume];
     [self.playButton setImage:_pauseImage forState:UIControlStateNormal];
-    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f/_fps target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
     _lastDate = [[NSDate date] retain];
     NSLog(@"[DV] RESUME");
@@ -385,7 +387,7 @@ NSString* FormatTickTime(int tick)
 {
     NSLog(@"[DV] System.End");
     [self doStop];
-    //[self doNextSlide];
+    [self doNextSlide:YES];
 }
 
 - (void)doActionBeginPen
@@ -398,8 +400,11 @@ NSString* FormatTickTime(int tick)
     [self setPaintAttributes];
 }
 
-- (void)doOnFluorOpen
+- (void)openBatchDraw
 {
+    if (_isBatchDrawOpened)
+        return;
+    
     UIGraphicsBeginImageContext(self.view.frame.size);
     [_canvasView.image drawInRect:CGRectMake(0, 0, _canvasView.frame.size.width, _canvasView.frame.size.height)];
     CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
@@ -408,18 +413,33 @@ NSString* FormatTickTime(int tick)
     CGFloat r, g, b, a;
     [_penColor getRed:&r green:&g blue:&b alpha:&a];
     CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), r, g, b, a);
+    
+    _isBatchDrawOpened = YES;
+}
+
+- (void)closeBatchDraw
+{
+    if (!_isBatchDrawOpened)
+        return;
+    
+    _canvasView.image = UIGraphicsGetImageFromCurrentImageContext();
+    _canvasView.alpha = 0.7;
+    UIGraphicsEndImageContext();
+    
+    _isBatchDrawOpened = NO;
+}
+
+- (void)doOnFluorOpen
+{
     CGContextBeginPath(UIGraphicsGetCurrentContext());
     CGContextMoveToPoint(UIGraphicsGetCurrentContext(), _prevDrawLocation.x, _prevDrawLocation.y);
     CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), _currDrawLocation.x, _currDrawLocation.y);
     CGContextStrokePath(UIGraphicsGetCurrentContext());
-    _canvasView.image = UIGraphicsGetImageFromCurrentImageContext();
-    _canvasView.alpha = 0.7;
-    UIGraphicsEndImageContext();
+    //_canvasView.image = UIGraphicsGetImageFromCurrentImageContext();
 }
 
 - (void)doEndFluorOpen
 {
-    
 }
 
 - (void)doActionSceneDraw
@@ -435,6 +455,9 @@ NSString* FormatTickTime(int tick)
     } else if ([param2 isEqualToString:@"BeginFluoropen"]) {
         [self doBeginFluorOpen];
     } else if ([param2 isEqualToString:@"OnFluoropen"]) {
+        if (!_isBatchDrawOpened) {
+            [self openBatchDraw];
+        }
         [self doOnFluorOpen];
     } else if ([param2 isEqualToString:@"EndFluoropen"]) {
         [self doEndFluorOpen];
@@ -495,6 +518,10 @@ NSString* FormatTickTime(int tick)
         _playerMainForm->PlayObject->script->NextAction(_playerMainForm->PlayObject->action);
         actionTime = _playerMainForm->PlayObject->script->QueryTime();
     }
+    
+    if (_isBatchDrawOpened) {
+        [self closeBatchDraw];
+    }
 }
 
 - (void)update
@@ -504,16 +531,9 @@ NSString* FormatTickTime(int tick)
     
     [self playScriptCommandsUntilTime:_countTime fromHead:NO];
     NSTimeInterval interval = [_lastDate timeIntervalSinceNow];
-    //int ms = interval / 1000;
-    
-    //NSLog(@"interval:%f", interval * -1000);
+    _countTime += interval * -100;
     [_lastDate release];
     _lastDate = [[NSDate date] retain];
-    _passedTimeInMS += interval * -100;
-    _countTime = _passedTimeInMS;
-    
-    
-    
     //_countTime += 1;
     [self updateTimeInfo];
     //NSLog(@"NEXT TIME:%d", actionTime);
@@ -734,6 +754,8 @@ using std::string;
     self.stopButton.enabled = NO;
     self.nextButton.enabled = NO;
     self.prevButton.enabled = NO;
+    _fps = 10;
+    
     
     // Load Images
     _playImage = [[UIImage imageNamed:@"play_blue1.png"] retain];
@@ -820,6 +842,16 @@ using std::string;
 {
     NSLog(@"[DV] receive memory warning");
     [super didReceiveMemoryWarning];
+}
+
+- (void)showBusyIndicator
+{
+    [NSThread detachNewThreadSelector: @selector(actIndicatorBegin) toTarget:self withObject:nil];
+}
+
+- (void)hideBusyIndicator
+{
+    [NSThread detachNewThreadSelector: @selector(actIndicatorEnd) toTarget:self withObject:nil];
 }
 
 @end

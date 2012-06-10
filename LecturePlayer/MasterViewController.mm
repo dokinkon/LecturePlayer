@@ -122,6 +122,7 @@
     } 
     
     RemoteLectureViewController* controller = [[RemoteLectureViewController alloc] initWithNibName:@"RemoteLectureViewController" bundle:nil];
+    controller.detailViewController = self.detailViewController;
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
 }

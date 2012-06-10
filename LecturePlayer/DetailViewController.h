@@ -21,6 +21,9 @@
 - (IBAction)nextButtonPressed:(id)sender;
 - (IBAction)prevButtonPressed:(id)sender;
 
+- (void)showBusyIndicator;
+- (void)hideBusyIndicator;
+
 @property (strong, nonatomic) Lecture* lecture;
 
 @property (strong, nonatomic) IBOutlet UIButton* stopButton;
