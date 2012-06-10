@@ -954,6 +954,7 @@ bool CTopicResource::WriteBSTToDir(string BSTFileName, string DirName)
                     string s = Char16ToString(tpBuf,size/2);
                     s.replace(33,7,"utf-8");
                     tempTest.append(s);
+                    delete [] tpBuf;
                 }
                 //connie end
                 m_ImageBuffer[Info[index]]=tmpInfo;	   

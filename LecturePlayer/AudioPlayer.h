@@ -27,7 +27,7 @@
 
 - (void)resume;
 
-- (void)seekTo:(int)t;
+- (BOOL)seekTo:(int)t;
 
 - (BOOL)nextSource;
 

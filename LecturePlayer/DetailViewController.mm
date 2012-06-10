@@ -13,18 +13,6 @@
 #import "Lecture.h"
 #import "Slide.h"
 
-/*!
- * \brief:
- */
-int TickTimeToAudioIndex(int tick) 
-{
-    //1. convert tick time as second
-    int sec = tick / 100;
-    
-    //2. convert second to audio index
-    return sec / 10;
-}
-
 NSString* FormatTickTime(int tick)
 {
     int totalSec = tick / 100;
@@ -46,6 +34,9 @@ NSString* FormatTickTime(int tick)
     UIImageView* _canvasView; // for drawing
     NSMutableArray* _sceneImageViews;
     UIAlertView* _busyIndicator;
+    
+    
+    
     CGPoint _currDrawLocation;
     CGPoint _prevDrawLocation;
     UIColor* _penColor;
@@ -60,8 +51,11 @@ NSString* FormatTickTime(int tick)
     BOOL _hasLectureLoaded;
     int _countTime;
     int _slideIndex;
+    int _passedTimeInMS;
     
     AudioPlayer* _audioPlayer;
+    
+    NSDate* _lastDate;
 }
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 
@@ -107,8 +101,6 @@ NSString* FormatTickTime(int tick)
 @end
 
 @implementation DetailViewController
-
-//@synthesize detailItem = _detailItem;
 @synthesize lecture = _lecture;
 @synthesize currentTimeLabel = _currentTimeLabel;
 @synthesize totalTimeLabel   = _totalTimeLabel;
@@ -120,6 +112,7 @@ NSString* FormatTickTime(int tick)
 @synthesize prevButton = _prevButton;
 
 @synthesize seekBar = _seekBar;
+@synthesize activityIndicator = _activityIndicator;
 
 - (void)dealloc
 {
@@ -137,6 +130,8 @@ NSString* FormatTickTime(int tick)
     
     [_playImage release];
     [_pauseImage release];
+    
+    [_activityIndicator release];
     
     delete _playerMainForm;
     _playerMainForm = NULL;
@@ -200,10 +195,7 @@ NSString* FormatTickTime(int tick)
 {
     UISlider* s = (UISlider*)sender;
     int val = s.value;
-    //_playerMainForm->PlayObject->script->GotoTime(val);
     [self doSeekTime:val];
-    _countTime = val;
-    //[_audioPlayer stop];
     NSLog(@"[DV] SEEK TO:%d", val);
 }
 
@@ -228,12 +220,25 @@ NSString* FormatTickTime(int tick)
     if (tickTime < 0 || tickTime > _totalScriptTime) 
         return;
     
-    [_audioPlayer pause];
+    BOOL isPlaying = _isPlaying;
+    
+    if (isPlaying) {
+        [self doPause];
+    }
+    
+    [_audioPlayer seekTo:tickTime/100];
     
     _canvasView.image = nil;
     [self playScriptCommandsUntilTime:tickTime fromHead:YES];
     _countTime = tickTime;
+    _passedTimeInMS = tickTime * 10;
+    
+    if (isPlaying) {
+        [self doResume];
+    }
+    
     [self updateTimeInfo];
+    
 }
 
 - (void)doStart
@@ -249,6 +254,7 @@ NSString* FormatTickTime(int tick)
     _playerMainForm->PlayObject->script->GotoBegin();
     _playerMainForm->PlayObject->script->NextAction(_playerMainForm->PlayObject->action);
     _countTime = 0;
+    _passedTimeInMS = 0;
     _isStarted = YES;
     
     [self doResume];
@@ -266,6 +272,7 @@ NSString* FormatTickTime(int tick)
     [self.playButton setImage:_pauseImage forState:UIControlStateNormal];
     _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(update) userInfo:nil repeats:YES];
     _isPlaying = YES;
+    _lastDate = [[NSDate date] retain];
     NSLog(@"[DV] RESUME");
 }
 
@@ -293,10 +300,6 @@ NSString* FormatTickTime(int tick)
     
     _countTime = 0;
     
-    //if (_hasLectureLoaded) {
-        //_playerMainForm->PlayObject->script->GotoBegin();
-    //}
-    
     [_audioPlayer stop];
     _canvasView.image = nil;
     [self updateTimeInfo];
@@ -313,7 +316,7 @@ NSString* FormatTickTime(int tick)
     if (_slideIndex - 1 < 0) {
         [self displayAlert:@"提示" withMessage:@"前面沒有了"];
     } else {
-        if ([self loadSlideWithIndex:_slideIndex-1]) {
+        if ([self doLoadSlideWithIndex:_slideIndex-1]) {
             if (autoPlay) {
                 [self doStart];
             }
@@ -327,12 +330,11 @@ NSString* FormatTickTime(int tick)
         return;
     
     if (_slideIndex + 1 < [_lecture.slides count]) {
-        if ([self loadSlideWithIndex:_slideIndex+1]) {
+        if ([self doLoadSlideWithIndex:_slideIndex+1]) {
             if (autoPlay) {
                 [self doStart];
             }
         }
-        //[self playSlidexIndex:_slideIndex+1];
     } else {
         [self displayAlert:@"提示" withMessage:@"課程完畢"];
     }    
@@ -476,9 +478,9 @@ NSString* FormatTickTime(int tick)
         NSString* action = [NSString stringWithCString:_playerMainForm->PlayObject->action.Action.c_str() encoding:NSUTF8StringEncoding];
         
         if ([action isEqualToString:@"System.SetPictureVisible"]) {
-            [self doActionSystemSetPictureVisible];
+            //[self doActionSystemSetPictureVisible];
         } else if ([action isEqualToString:@"System.SetPictureUseScene"]) {
-            [self doActionSystemSetPictureUseScene];
+            //[self doActionSystemSetPictureUseScene];
         } else if ([action isEqualToString:@"Scene.MouseMove"]) {
             [self doActionSceneMouseMove];
         } else if ([action isEqualToString:@"Scene.Draw"]) {
@@ -501,38 +503,20 @@ NSString* FormatTickTime(int tick)
         return;
     
     [self playScriptCommandsUntilTime:_countTime fromHead:NO];
+    NSTimeInterval interval = [_lastDate timeIntervalSinceNow];
+    //int ms = interval / 1000;
     
-    _countTime += 1;
+    //NSLog(@"interval:%f", interval * -1000);
+    [_lastDate release];
+    _lastDate = [[NSDate date] retain];
+    _passedTimeInMS += interval * -100;
+    _countTime = _passedTimeInMS;
+    
+    
+    
+    //_countTime += 1;
     [self updateTimeInfo];
     //NSLog(@"NEXT TIME:%d", actionTime);
-}
-
-- (void)showBusyIndicator
-{
-    if (_busyIndicator)
-        return;
-    _busyIndicator = [[UIAlertView alloc] initWithTitle:@"請稍候..."
-                                                message:nil
-                                               delegate:nil
-                                      cancelButtonTitle:nil
-                                      otherButtonTitles:nil];
-    [_busyIndicator show];
-    
-    UIActivityIndicatorView* indicator = [[UIActivityIndicatorView alloc]
-                                          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    indicator.center = CGPointMake(_busyIndicator.bounds.size.width/2,
-                                   _busyIndicator.bounds.size.height-40);
-    [indicator startAnimating];
-    [_busyIndicator addSubview:indicator];
-    [indicator release];
-}
-- (void)hideBusyIndicator
-{
-    if (!_busyIndicator)
-        return;
-    
-    [_busyIndicator dismissWithClickedButtonIndex:0 animated:NO];
-    _busyIndicator = nil;
 }
 
 #pragma mark - Managing the detail item
@@ -546,10 +530,7 @@ NSString* FormatTickTime(int tick)
     }
     
     _lecture = lecture;
-    [self loadSlideWithIndex:slideIndex];
-    //[self doStop];
-    
-    //[self playSlidexIndex:slideIndex];
+    [self doLoadSlideWithIndex:slideIndex];
 }
 
 - (void)dumpResourceRefNames;
@@ -647,9 +628,9 @@ using std::string;
 {
     [self enableUIControls:NO];
     [self doStop];
+    
     if (_playerMainForm->LoadFile([fileName cStringUsingEncoding:NSUTF8StringEncoding])) {
-        
-        
+
         _hasLectureLoaded = YES;
         _totalScriptTime = _playerMainForm->PlayObject->script->m_TotalScriptTime;
         int t = [self getAudioListSize];
@@ -681,6 +662,16 @@ using std::string;
     UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:@"好" otherButtonTitles:nil];
     [alert show];
     [alert release];
+}
+
+- (BOOL)doLoadSlideWithIndex:(int)index
+{
+    [NSThread detachNewThreadSelector: @selector(actIndicatorBegin) toTarget:self withObject:nil];
+    bool r = [self loadSlideWithIndex:index];
+    if (r)
+        [self updateTitle];
+    [NSThread detachNewThreadSelector: @selector(actIndicatorEnd) toTarget:self withObject:nil];
+    return r;
 }
 
 - (BOOL)loadSlideWithIndex:(int)index
@@ -717,7 +708,7 @@ using std::string;
 - (BOOL)playSlidexIndex:(int)index
 {
     if (_slideIndex != index) {
-        if ([self loadSlideWithIndex:index]) {
+        if ([self doLoadSlideWithIndex:index]) {
             [self doStart];
             return YES;
         }
@@ -758,6 +749,7 @@ using std::string;
     self.stopButton = nil;
     self.nextButton = nil;
     self.prevButton = nil;
+    self.activityIndicator = nil;
     
     self.seekBar = nil;
     self.currentTimeLabel = nil;
@@ -803,6 +795,31 @@ using std::string;
     // Called when the view is shown again in the split view, invalidating the button and popover controller.
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
+}
+
+- (void)actIndicatorBegin
+{
+    [self.activityIndicator startAnimating];
+}
+
+- (void)actIndicatorEnd
+{
+    [self.activityIndicator stopAnimating];
+}
+
+- (void)updateTitle
+{
+    if (!_lecture)
+        return;
+    
+    int totalSlides = [_lecture.slides count];
+    self.title = [NSString stringWithFormat:@"LecturePlayer (%d/%d)", _slideIndex+1, totalSlides];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    NSLog(@"[DV] receive memory warning");
+    [super didReceiveMemoryWarning];
 }
 
 @end

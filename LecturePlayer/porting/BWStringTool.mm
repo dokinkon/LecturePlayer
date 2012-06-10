@@ -133,17 +133,23 @@ int stringToInt(string data, int def_value)
 //------------------------------------------------------------------------------
 string IntToStringNew(int value, int letternum)
 {
-    char* result = new char[wlen];
+    //char* result = new char[wlen];
+    char result[wlen];
 
     if(letternum <= 0)
     {
         sprintf(result,"%d",value);
         return string(result);
     }
+    
+    char ch_result[wlen];
+    char* temp1;
+    char temp2[wlen];
 
-    char *ch_result = new char[wlen];
-    char *temp1 = new char[wlen];
-    char *temp2 = new char[wlen];
+    
+    //char *ch_result = new char[wlen];
+    //char *temp1 = new char[wlen];
+    //char *temp2 = new char[wlen];
     for(int i=0;i<letternum;i++)
     {
         sprintf(temp2,"%d",value%10);

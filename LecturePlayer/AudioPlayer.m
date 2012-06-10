@@ -28,8 +28,6 @@ void FFAVCodecContextToASBD(AVCodecContext *avctx, AudioStreamBasicDescription *
 {
 	asbd->mSampleRate       = avctx->sample_rate;
 	asbd->mChannelsPerFrame = avctx->channels;
-	//asbd->mBytesPerPacket   = avctx->block_align;
-	//asbd->mFramesPerPacket  = avctx->frame_size;
 	asbd->mBitsPerChannel   = avctx->bits_per_coded_sample;
     asbd->mBytesPerPacket   = 4;
     asbd->mFramesPerPacket  = 1; // For uncompressed audio, the value is 1
@@ -75,12 +73,19 @@ void FFAVCodecContextToASBD(AVCodecContext *avctx, AudioStreamBasicDescription *
 @property (nonatomic, assign) AVFormatContext* formatCtx;
 @property (nonatomic, assign) int audioStreamIndex;
 @property (nonatomic, assign) AudioQueueRef aqRef;
+@property (nonatomic, assign) BOOL stopFeedingBuffer;
+@property (readonly) BOOL canFeedPCM;
 
 @end
 
 void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
 {    
     AudioPlayer* ap = (AudioPlayer*)inUserData;
+    if (!ap.canFeedPCM) {
+        NSLog(@"[AP] CAN NOT FEED PCM");
+        return;
+    }
+    
     AVPacket avpkt;
     
     if (av_read_frame(ap.formatCtx, &avpkt) < 0) {
@@ -88,7 +93,6 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
         
         [ap performSelectorOnMainThread:@selector(nextSource) withObject:nil waitUntilDone:YES];
         if (ap.isSourceOpened) { 
-        //if ([ap nextSource]) {
             if (av_read_frame(ap.formatCtx, &avpkt) < 0) {
                 shouldStop = YES;
             }
@@ -97,10 +101,13 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
         }
         
         if (shouldStop) {
+            NSLog(@"[AP] NO MORE AUDIO DATA");
             //[ap performSelectorOnMainThread:@selector(stop) withObject:nil waitUntilDone:NO]; 
             return;
         }
     }
+    
+    //NSLog(@"[AP] PTS:%lld", avpkt.pts);
     
     if (avpkt.stream_index != ap.audioStreamIndex) {
         av_free_packet(&avpkt);
@@ -149,6 +156,7 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
 @synthesize isPlaying = _isPlaying;
 @synthesize isSourceOpened = _isSourceOpened;
 @synthesize sourceNames = _sourceNames;
+@synthesize canFeedPCM = _canFeedPCM;
 
 
 + (void)initFFEngine
@@ -185,7 +193,7 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
         //NSLog(@"[AP][WARN] !isPlaying || ");
         return;
     }
-    
+    _canFeedPCM = NO;
     AudioQueueStop(_aqRef, YES);
     for (int i=0;i<kNumberBuffers;++i) {
         AudioQueueFreeBuffer(_aqRef, _aqBufferRefs[i]);
@@ -222,9 +230,53 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
     NSLog(@"[AP] RESUME");
 }
 
-- (void)seekTo:(int)t
+- (BOOL)seekTo:(int)s
 {
-    // TODO
+    NSLog(@"[AP][SEEKTO] sec:%d", s);
+    // check whether the player is paused.
+    if (_isPlaying) {
+        NSLog(@"[AP][ERROR] CAN'T SEEK CAUSE IT'S STILL PLAYING.");
+        return NO;
+    }
+    
+    // Flush Buffers
+    _canFeedPCM = NO;
+    AudioQueueStop(_aqRef, NO);
+    // Synchronize Stop will cause program hang
+    //AudioQueueStop(_aqRef, YES);
+    
+    // Calculate source index
+    int sourceIndex = s / 10;
+    [self closeSource];
+    [self openSource:sourceIndex];
+    
+    int offset = s % 10;
+    NSLog(@"[AP][SEEK] offset:%d", offset);
+
+    BOOL found = NO;
+    
+    while (!found) {
+        AVPacket avpkt;
+        if (av_read_frame(_formatCtx, &avpkt) == 0) {
+            
+            if (avpkt.pts >= offset*1000) {
+                NSLog(@"[AP][SEEK][PTS]:%lld", avpkt.pts);
+                found = YES;
+            }
+        } else {
+            NSLog(@"[AP][ERROR] failed to seek pts");
+            return NO;
+        }
+    }
+    
+    _canFeedPCM = YES;
+        
+    for (int i=0;i<kNumberBuffers;++i) {
+        AQDecodeStreamToBuffer(self, _aqRef, _aqBufferRefs[i]);
+    }
+    
+    AudioQueueStart(_aqRef, NULL);
+    return YES;
 }
 
 - (BOOL)nextSource
@@ -330,7 +382,7 @@ void AQDecodeStreamToBuffer(void* inUserData, AudioQueueRef inAQ, AudioQueueBuff
         return NO;
     }
     
-    
+    _canFeedPCM = YES;
     for (int i=0;i<kNumberBuffers;++i) {
         if ((ret = AudioQueueAllocateBuffer(_aqRef, AVCODEC_MAX_AUDIO_FRAME_SIZE, &_aqBufferRefs[i]))!=0) {
             NSLog(@"[AP][ERROR] AudioQueueAllocateBuffer, ERRNO:%ld", ret);

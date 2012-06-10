@@ -33,4 +33,7 @@
 @property (strong, nonatomic) IBOutlet UILabel* currentTimeLabel;
 @property (strong, nonatomic) IBOutlet UILabel* totalTimeLabel;
 
+
+@property (strong, nonatomic) IBOutlet UIActivityIndicatorView* activityIndicator;
+
 @end
