@@ -27,6 +27,7 @@ typedef enum {
     NSMutableArray* _downloading;
     NSMutableArray* _downloadSessions;
     UIAlertView* _busyIndicator;
+    NSTimer* _timer;
 }
 
 - (void)refreshButtonPressed:(id)sender;
@@ -71,11 +72,35 @@ typedef enum {
     self.navigationItem.rightBarButtonItem = refreshButton;
     [refreshButton release];
     
-    _restClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
-    _restClient.delegate = self;
+    //_restClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
+    //_restClient.delegate = self;
     _lectures = [[NSMutableArray alloc] initWithCapacity:3];
     
     [self doRefresh];
+    
+    if (![[DBSession sharedSession] isLinked]) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:1
+                                                  target:self
+                                                selector:@selector(update)
+                                                userInfo:nil
+                                                 repeats:YES];
+        NSLog(@"[RV] SCHEDULE UPDATE TIMER");
+    }
+}
+
+- (void)update
+{
+    NSLog(@"[RV] UPDATE");
+    if ([[DBSession sharedSession] isLinked]) {
+        //[self doRefresh];
+        [_timer invalidate];
+        _timer = nil;
+        [NSTimer scheduledTimerWithTimeInterval:1 
+                                         target:self
+                                       selector:@selector(doRefresh)
+                                       userInfo:nil repeats:NO];
+        NSLog(@"[RV] DB LINKED");
+    }
 }
 
 - (void)viewDidUnload
@@ -199,6 +224,16 @@ typedef enum {
 
 - (void)doRefresh
 {
+    if (![[DBSession sharedSession] isLinked])
+        return;
+    
+    if (!_restClient) {
+        _restClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]]; 
+        _restClient.delegate = self;
+    }
+    
+    NSLog(@"[RV] DO REFRESH");
+    
     [_lectures removeAllObjects];
     _opCode = kLoadLectureList;
     [_restClient loadMetadata:@"/"];

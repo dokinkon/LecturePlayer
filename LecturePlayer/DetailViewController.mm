@@ -435,7 +435,28 @@ NSString* FormatTickTime(int tick)
     CGContextMoveToPoint(UIGraphicsGetCurrentContext(), _prevDrawLocation.x, _prevDrawLocation.y);
     CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), _currDrawLocation.x, _currDrawLocation.y);
     CGContextStrokePath(UIGraphicsGetCurrentContext());
-    //_canvasView.image = UIGraphicsGetImageFromCurrentImageContext();
+}
+
+- (void)doBeginPen
+{
+    
+}
+
+- (void)doOnPen
+{
+    if (!_isBatchDrawOpened) {
+        [self openBatchDraw];
+    }
+    
+    CGContextBeginPath(UIGraphicsGetCurrentContext());
+    CGContextMoveToPoint(UIGraphicsGetCurrentContext(), _prevDrawLocation.x, _prevDrawLocation.y);
+    CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), _currDrawLocation.x, _currDrawLocation.y);
+    CGContextStrokePath(UIGraphicsGetCurrentContext());
+}
+
+- (void)doEndPen
+{
+    
 }
 
 - (void)doEndFluorOpen
@@ -447,11 +468,11 @@ NSString* FormatTickTime(int tick)
     NSString* param2 = [self getActionParameter:2];
     //NSLog(@"Sceen.Draw.%@", param2);
     if ([param2 isEqualToString:@"BeginPen"]) {
-        // TODO
+        [self doActionBeginPen];
     } else if ([param2 isEqualToString:@"OnPen"]) {
-        // TODO
+        [self doOnPen];
     } else if ([param2 isEqualToString:@"EndPen"]) {
-        // TODO
+        [self doEndPen];
     } else if ([param2 isEqualToString:@"BeginFluoropen"]) {
         [self doBeginFluorOpen];
     } else if ([param2 isEqualToString:@"OnFluoropen"]) {
@@ -553,6 +574,56 @@ NSString* FormatTickTime(int tick)
     [self doLoadSlideWithIndex:slideIndex];
 }
 
+- (void)configureLandScape
+{
+    if (_sceneRootView) {
+        _sceneRootView.frame = CGRectMake(152, 54, 720, 540);
+    }
+    self.currentTimeLabel.frame = CGRectMake(20, 647, 80, 21);
+    self.totalTimeLabel.frame = CGRectMake(937, 647, 80, 21);
+    self.seekBar.frame = CGRectMake(18, 670, 988, 23);
+    self.prevButton.frame = CGRectMake(419, 633, 40, 35);
+    self.playButton.frame = CGRectMake(467, 633, 40, 35);
+    self.stopButton.frame = CGRectMake(515, 633, 40, 35);
+    self.nextButton.frame = CGRectMake(563, 633, 40, 35);
+    self.activityIndicator.frame = CGRectMake(700, 632, 37, 37);
+}
+
+- (void)configurePortrait
+{
+    if (_sceneRootView) {
+        _sceneRootView.frame = CGRectMake(24, 120, 720, 540);
+    }
+    self.currentTimeLabel.frame = CGRectMake(20, 747, 80, 21);
+    self.totalTimeLabel.frame = CGRectMake(680, 747, 80, 21);
+    self.seekBar.frame = CGRectMake(18, 770, 732, 23);
+    self.prevButton.frame = CGRectMake(279, 733, 40, 35);
+    self.playButton.frame = CGRectMake(334, 733, 40, 35);
+    self.stopButton.frame = CGRectMake(395, 733, 40, 35);
+    self.nextButton.frame = CGRectMake(450, 733, 40, 35);
+    self.activityIndicator.frame = CGRectMake(483, 732, 37, 37);    
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+                                         duration:(NSTimeInterval)duration
+{
+    if (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+        toInterfaceOrientation == UIInterfaceOrientationLandscapeRight)
+    {
+        [self configureLandScape];
+    }
+    else
+    {
+        [self configurePortrait];
+    }
+}
+
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return YES;
+}
+
 - (void)dumpResourceRefNames;
 {
     vector<string> imageRefNames;
@@ -577,6 +648,13 @@ using std::string;
 {
     _sceneRootView = [[UIView alloc] initWithFrame:CGRectMake(152, 54, 720, 540)];
     [self.view addSubview:_sceneRootView];
+    
+    if (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+        self.interfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+        [self configureLandScape];
+    } else {
+        [self configurePortrait];
+    }
 }
 
 - (void)removeSceneRootView
@@ -776,11 +854,6 @@ using std::string;
     self.seekBar = nil;
     self.currentTimeLabel = nil;
     self.totalTimeLabel   = nil;
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return YES;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil

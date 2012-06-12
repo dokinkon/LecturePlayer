@@ -95,12 +95,21 @@
     [super viewDidLoad];
     UIBarButtonItem *dropBoxButton = [[[UIBarButtonItem alloc] initWithTitle:@"Dropbox" style:UIBarButtonItemStylePlain target:self action:@selector(openDropbox:)] autorelease];
     self.navigationItem.rightBarButtonItem = dropBoxButton;
+    
     MakeDownloadDirectory();
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    if ([[DBSession sharedSession] isLinked]) {
+        UIBarButtonItem* logoutButton = [[[UIBarButtonItem alloc] initWithTitle:@"登出" style:UIBarButtonItemStylePlain target:self action:@selector(logoutDropbox)] autorelease];
+        self.navigationItem.leftBarButtonItem = logoutButton;   
+    } else {
+        self.navigationItem.leftBarButtonItem = nil;
+    }
+    
     [self refresh];
 }
 
@@ -113,6 +122,20 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
+}
+
+- (void)logoutDropbox
+{
+    if (![[DBSession sharedSession] isLinked]) {
+        return;
+    }
+    
+    [[DBSession sharedSession] unlinkAll];
+    NSLog(@"[MV] LOGOUT DROPBOX");
+    
+    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"提示" message:@"您已登出" delegate:nil cancelButtonTitle:@"好" otherButtonTitles:nil];
+    [alert show];
+    [alert release];
 }
 
 - (void)openDropbox:(id)sender

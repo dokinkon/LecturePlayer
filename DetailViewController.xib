@@ -41,7 +41,7 @@
 					<object class="IBUIActivityIndicatorView" id="301591535">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">-2147483356</int>
-						<string key="NSFrame">{{700, 632}, {37, 37}}</string>
+						<string key="NSFrame">{{627, 634}, {37, 37}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -53,7 +53,7 @@
 					<object class="IBUILabel" id="301622983">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{401, 363}, {223, 34}}</string>
+						<string key="NSFrame">{{273, 361}, {223, 34}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="17046720"/>
@@ -87,7 +87,7 @@
 					<object class="IBUIButton" id="67184397">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{467, 633}, {40, 35}}</string>
+						<string key="NSFrame">{{334, 635}, {40, 35}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="55778210"/>
@@ -127,10 +127,10 @@
 					<object class="IBUISlider" id="1048411336">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{18, 670}, {988, 23}}</string>
+						<string key="NSFrame">{{18, 670}, {732, 23}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
+						<reference key="NSNextKeyView" ref="301591535"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
@@ -141,10 +141,10 @@
 					<object class="IBUIButton" id="1042224819">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{563, 633}, {40, 35}}</string>
+						<string key="NSFrame">{{450, 636}, {40, 35}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="301591535"/>
+						<reference key="NSNextKeyView" ref="438868244"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
@@ -170,7 +170,7 @@
 					<object class="IBUIButton" id="518584116">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{419, 633}, {40, 35}}</string>
+						<string key="NSFrame">{{279, 633}, {40, 35}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="67184397"/>
@@ -196,7 +196,7 @@
 					<object class="IBUIButton" id="55778210">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{515, 633}, {40, 35}}</string>
+						<string key="NSFrame">{{395, 636}, {40, 35}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="1042224819"/>
@@ -257,7 +257,7 @@
 					<object class="IBUILabel" id="438868244">
 						<reference key="NSNextResponder" ref="647120888"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{937, 647}, {67, 21}}</string>
+						<string key="NSFrame">{{680, 647}, {67, 21}}</string>
 						<reference key="NSSuperview" ref="647120888"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="1048411336"/>
@@ -280,7 +280,7 @@
 						<reference key="IBUIFont" ref="561908295"/>
 					</object>
 				</array>
-				<string key="NSFrame">{{0, 20}, {1024, 748}}</string>
+				<string key="NSFrame">{{0, 20}, {768, 1004}}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="301622983"/>
@@ -291,10 +291,6 @@
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 				<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics">
 					<int key="IBUIStatusBarStyle">2</int>
-				</object>
-				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
-					<int key="IBUIInterfaceOrientation">3</int>
-					<int key="interfaceOrientation">3</int>
 				</object>
 				<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 			</object>
@@ -442,15 +438,15 @@
 						<int key="objectID">8</int>
 						<reference key="object" ref="647120888"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="518584116"/>
 							<reference ref="1048411336"/>
-							<reference ref="67184397"/>
-							<reference ref="55778210"/>
-							<reference ref="1042224819"/>
 							<reference ref="17046720"/>
 							<reference ref="438868244"/>
-							<reference ref="301591535"/>
+							<reference ref="518584116"/>
 							<reference ref="301622983"/>
+							<reference ref="301591535"/>
+							<reference ref="1042224819"/>
+							<reference ref="55778210"/>
+							<reference ref="67184397"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -543,7 +539,6 @@
 						<string key="prevButtonPressed:">id</string>
 						<string key="progressSliderMoved:">id</string>
 						<string key="stopButtonPressed:">id</string>
-						<string key="testButtonPressed:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="nextButtonPressed:">
@@ -564,10 +559,6 @@
 						</object>
 						<object class="IBActionInfo" key="stopButtonPressed:">
 							<string key="name">stopButtonPressed:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="testButtonPressed:">
-							<string key="name">testButtonPressed:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>
