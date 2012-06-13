@@ -55,6 +55,8 @@ NSString* FormatTickTime(int tick)
     //int _passedTimeInMS;
     int _fps;
     
+    BOOL _shouldResumeAfterRotation;
+    
     AudioPlayer* _audioPlayer;
     
     NSDate* _lastDate;
@@ -405,8 +407,9 @@ NSString* FormatTickTime(int tick)
     if (_isBatchDrawOpened)
         return;
     
-    UIGraphicsBeginImageContext(self.view.frame.size);
+    UIGraphicsBeginImageContext(_canvasView.frame.size);
     [_canvasView.image drawInRect:CGRectMake(0, 0, _canvasView.frame.size.width, _canvasView.frame.size.height)];
+    
     CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
     CGContextSetLineWidth(UIGraphicsGetCurrentContext(), _penSize);
     
@@ -415,6 +418,7 @@ NSString* FormatTickTime(int tick)
     CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), r, g, b, a);
     
     _isBatchDrawOpened = YES;
+    //NSLog(@"OPEN BATCH DRAW");
 }
 
 - (void)closeBatchDraw
@@ -427,6 +431,7 @@ NSString* FormatTickTime(int tick)
     UIGraphicsEndImageContext();
     
     _isBatchDrawOpened = NO;
+    //NSLog(@"CLOSE BATCH DRAW");
 }
 
 - (void)doOnFluorOpen
@@ -833,6 +838,7 @@ using std::string;
     self.nextButton.enabled = NO;
     self.prevButton.enabled = NO;
     _fps = 10;
+    _shouldResumeAfterRotation = NO;
     
     
     // Load Images
@@ -925,6 +931,29 @@ using std::string;
 - (void)hideBusyIndicator
 {
     [NSThread detachNewThreadSelector: @selector(actIndicatorEnd) toTarget:self withObject:nil];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    _shouldResumeAfterRotation = _isPlaying;
+    if (_isPlaying) {
+        [self doPause];
+    }
+    
+    if (_isBatchDrawOpened) {
+        [self closeBatchDraw];
+    }
+    NSLog(@"WILL ROTATE");
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    if (_shouldResumeAfterRotation) {
+        [self doResume];
+        _shouldResumeAfterRotation = NO;
+    }
+    NSLog(@"DID ROTATE");
+    
 }
 
 @end
